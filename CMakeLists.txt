@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
+project(SemkiAI LANGUAGES CXX CUDA)
+enable_language(CUDA)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+add_executable(SemkiAI src/main.cu src/AI.cu src/DatasetParser.cpp)
+set_target_properties(SemkiAI PROPERTIES CUDA_ARCHITECTURES "50;72")
