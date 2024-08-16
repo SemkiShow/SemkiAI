@@ -23,15 +23,67 @@ int main()
 
     Perceptron perceptron;
     int neuronsConfig[42];
-    for (int i = 0; i < sizeof(neuronsConfig) / sizeof(*neuronsConfig); i++)
+    perceptron.layers = 42;
+    perceptron.InitCuda();
+    // cout << sizeof(neuronsConfig) / sizeof(*neuronsConfig) << endl;
+    for (int i = 0; i < perceptron.layers; i++)
     {
         neuronsConfig[i] = 42;
+        perceptron.neuronsConfig[i] = 42;
     }
-    perceptron.neuronsConfig = neuronsConfig;
-    perceptron.layers = sizeof(neuronsConfig) / sizeof(*neuronsConfig);
-    // cudaMallocManaged(&perceptron.neurons, perceptron.layers*perceptron.neuronsConfig[0]*sizeof(float));
+    cout << "neuronsConfig was set" << endl;
+    // perceptron.neuronsConfig = neuronsConfig;
+    // for (int i = 0; i < perceptron.layers; i++)
+    // {
+    //     if (i < 10)
+    //     {
+    //         cout << " " << i << "; ";
+    //     }
+    //     else
+    //     {
+    //         cout << i << "; ";
+    //     }
+        
+    // }
+    // cout << endl;
+    // for (int i = 0; i < perceptron.layers; i++)
+    // {
+    //     cout << perceptron.neuronsConfig[i] << "; ";
+    // }
+    // cout << endl;
+    double rightAnswer[neuronsConfig[perceptron.layers-1]];
+    perceptron.rightAnswer = rightAnswer;
+    for (int i = 0; i < perceptron.neuronsConfig[perceptron.layers-1]; i++)
+    {
+        perceptron.rightAnswer[i] = 1.0;
+    }
+    cout << "Right answer was set" << endl;
+    // cudaMallocManaged(&perceptron.neurons, perceptron.layers*perceptron.neuronsConfig[0]*sizeof(double));
     perceptron.Init();
-    perceptron.TrainGenerations(100);
+    // perceptron.delta = 1;
+    double initialError = perceptron.Train(
+        Perceptron::ActivationFunction::Sigmoid,
+        Perceptron::CostFunction::MeanSquared, 
+        Perceptron::LearningAlgorithm::Backpropagation, 
+        1.0);
+    double endError;
+    for (int i = 0; i < 5; i++)
+    {
+        cout << "Iteration: " << i << endl;
+        endError = perceptron.Train(
+            Perceptron::ActivationFunction::Sigmoid,
+            Perceptron::CostFunction::MeanSquared, 
+            Perceptron::LearningAlgorithm::Backpropagation, 
+            10.0);
+    }
+    // double endError = perceptron.Train(
+    //     Perceptron::ActivationFunction::Sigmoid,
+    //     Perceptron::CostFunction::MeanSquared, 
+    //     Perceptron::LearningAlgorithm::Backpropagation, 
+    //     1.0);
+    cout << endl;
+    cout << "Initial error was " << initialError << endl;
+    cout << "Now the error is " << endError << endl;
 
     // string path = "/home/semkishow/Wikipedia100/A";
     // string outputDirectory = "./dataset";

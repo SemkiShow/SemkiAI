@@ -2,29 +2,43 @@
 #include <random>
 #include <string>
 #include <cmath>
+#include <vector>
 using namespace std;
 
 void test();
-// __global__ void addKernel(float* a, float* b, float* c, int N);
-// void add(float* a, float* b, float* c, int N);
+// __global__ void addKernel(double* a, double* b, double* c, int N);
+// void add(double* a, double* b, double* c, int N);
 class Perceptron
 {
     private:
-        float* neurons;
-        float* weights;
+        double* neurons;
+        double* weights;
     public:
-        enum CostFunction {MeanSquared, MeanAbsolute};
+        enum class CostFunction {MeanSquared, MeanAbsolute, Huber, BinaryCrossEntropy, CategoricalCrossEntropy};
+        enum class ActivationFunction {Sigmoid, ReLU, Tanh};
+        enum class LearningAlgorithm {Backpropagation, SimulatedAnnealing};
+        int gpuThreads;
+        int gpuBlocks;
         int* neuronsConfig;
         int layers;
-        float* rightAnswer;
+        double* rightAnswer;
+        double delta = -1;
+        double clip = -1;
+        double temperature = -1;
+        int InitCuda();
         int Init();
-        int CalculateNeurons();
-        float MeanSquaredError();
-        float MeanAbsoluteError();
-        float HuberLoss(float delta);
-        float BinaryCrossEntropyError(float clip);
-        float CategoricalCrossEntropyError();
-        float Train(CostFunction costFunction);
+        double Sigmoid(double input);
+        double ReLU(double input);
+        double Tanh(double input);
+        int CalculateNeurons(ActivationFunction activationFunction);
+        double MeanSquaredError(int layer);
+        double MeanAbsoluteError(int layer);
+        double HuberLoss(int layer/* double delta */);
+        double BinaryCrossEntropyLoss(int layer/* double clip */);
+        double CategoricalCrossEntropyLoss(int layer);
+        int Backpropagation(CostFunction costFunction, double learningRate);
+        int SimulatedAnnealing(CostFunction costFunction, double learningRate, int temperatureDecreaseRate);
+        double Train(ActivationFunction activationFunction, CostFunction costFunction, LearningAlgorithm leraningAlgorithm, double learningRate);
         // int TrainScore(int score, CostFunction costFunction);
         // int TrainGenerations(int generations, CostFunction costFunction);
         int Free();
