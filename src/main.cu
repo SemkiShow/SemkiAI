@@ -66,8 +66,8 @@ int main()
         Perceptron::CostFunction::MeanSquared, 
         Perceptron::LearningAlgorithm::Backpropagation, 
         1.0);
-    double endError;
-    for (int i = 0; i < 5; i++)
+    double endError = 0;
+    for (int i = 0; i < 1000; i++)
     {
         cout << "Iteration: " << i << endl;
         endError = perceptron.Train(

@@ -5,9 +5,9 @@ std::mt19937 rng(dev());
 std::uniform_int_distribution<std::mt19937::result_type> dist1000(0, 1000);
 
 
-class MyException : public exception { 
+class MyException : public std::exception { 
 private: 
-    string message; 
+    std::string message; 
   
 public: 
     // Constructor accepts a const char* that is used to set 
@@ -37,7 +37,7 @@ int Perceptron::InitCuda()
     cudaMallocManaged(&neuronsConfig, layers*sizeof(int));
     // cudaMallocManaged(&neurons, layers*neuronsConfig[0]*sizeof(double));
     // cudaMallocManaged(&weights, layers*neuronsConfig[0]*(neuronsConfig[0]-1)*sizeof(double));
-    cout << "Cuda was initialized" << endl; 
+    std::cout << "cuda was initialized" << std::endl; 
     return 0;
 }
 
@@ -46,18 +46,18 @@ int Perceptron::Init()
     // cudaMallocManaged(&neuronsConfig, layers*sizeof(int));
 
     cudaMallocManaged(&neurons, layers*neuronsConfig[0]*sizeof(double));
-    // cout << layers*neuronsConfig[0] << endl;
+    // std::cout << layers*neuronsConfig[0] << std::endl;
     for (int i = 0; i < layers; i++)
     {
         for (int j = 0; j < neuronsConfig[0]; j++)
         {
-            // cout << i*neuronsConfig[0]+j << endl;
-            // cout << dist1000(rng) * 1.0 / 1000 << endl;
+            // std::cout << i*neuronsConfig[0]+j << std::endl;
+            // std::cout << dist1000(rng) * 1.0 / 1000 << std::endl;
             neurons[i*neuronsConfig[0]+j] = dist1000(rng) * 1.0 / 1000;
-            // cout << neurons[i*neuronsConfig[0]+j] << endl;
+            // std::cout << neurons[i*neuronsConfig[0]+j] << std::endl;
         }
     }
-    cout << "Neurons were initialized" << endl;
+    std::cout << "Neurons were initialized" << std::endl;
 
     cudaMallocManaged(&weights, layers*neuronsConfig[0]*(neuronsConfig[0]-1)*sizeof(double));
     // int lastIndex = 0;
@@ -69,15 +69,15 @@ int Perceptron::Init()
             {
                 // if (i*neuronsConfig[i]*(neuronsConfig[i]-1)+j*(neuronsConfig[i]-1)+k - lastIndex != 1)
                 // {
-                //     cout << lastIndex << "->" << i*neuronsConfig[i]*(neuronsConfig[i]-1)+j*(neuronsConfig[i]-1)+k << endl;
+                //     std::cout << lastIndex << "->" << i*neuronsConfig[i]*(neuronsConfig[i]-1)+j*(neuronsConfig[i]-1)+k << std::endl;
                 // }
                 // lastIndex = i*neuronsConfig[i]*(neuronsConfig[i]-1)+j*(neuronsConfig[i]-1)+k;
-                // cout << i*neuronsConfig[i]*(neuronsConfig[i]-1)+j*(neuronsConfig[i]-1)+k << endl;
+                // std::cout << i*neuronsConfig[i]*(neuronsConfig[i]-1)+j*(neuronsConfig[i]-1)+k << std::endl;
                 weights[i*neuronsConfig[i]*(neuronsConfig[i]-1)+j*(neuronsConfig[i]-1)+k] = dist1000(rng) * 1.0 / 1000;
             }
         }
     }
-    cout << "Weights were initialized" << endl;
+    std::cout << "Weights were initialized" << std::endl;
     return 0;
 }
 
@@ -119,7 +119,7 @@ int Perceptron::CalculateNeurons(ActivationFunction activationFunction)
 {
     for (int i = 0; i < layers-1; i++)
     {
-        // cout << i << endl;
+        // std::cout << i << std::endl;
         gpuThreads = 256;
         gpuBlocks = (neuronsConfig[i] + gpuThreads - 1) / gpuThreads;
         CalculateNeuronsKernel<<<gpuBlocks, gpuThreads>>>(neurons, weights, neuronsConfig, layers, i);
@@ -127,7 +127,7 @@ int Perceptron::CalculateNeurons(ActivationFunction activationFunction)
     }
     for (int i = neuronsConfig[0]*(layers-1); i < neuronsConfig[0]*layers; i++)
     {
-        // cout << neurons[i] << endl;
+        // std::cout << neurons[i] << std::endl;
         switch (activationFunction)
         {
             case ActivationFunction::Sigmoid:
@@ -143,10 +143,10 @@ int Perceptron::CalculateNeurons(ActivationFunction activationFunction)
             default:
                 break;
         }
-        // cout << neurons[i] << endl;
+        // std::cout << neurons[i] << std::endl;
     }
     
-    cout << "Neurons were recalculated" << endl;
+    std::cout << "Neurons were recalculated" << std::endl;
     return 0;
 }
 
@@ -155,14 +155,14 @@ double Perceptron::MeanSquaredError(int layer)
     double output = 0.0;
     for (int i = 0; i < neuronsConfig[layer]; i++)
     {
-        // cout << neurons[neuronsConfig[0]*layer+i] << " - " << rightAnswer[i] << " = " << neurons[neuronsConfig[0]*layer+i] - rightAnswer[i] << endl;
-        // cout << output << " + " << pow(neurons[neuronsConfig[0]*layer+i] - rightAnswer[i], 2) << " = ";
+        // std::cout << neurons[neuronsConfig[0]*layer+i] << " - " << rightAnswer[i] << " = " << neurons[neuronsConfig[0]*layer+i] - rightAnswer[i] << std::endl;
+        // std::cout << output << " + " << pow(neurons[neuronsConfig[0]*layer+i] - rightAnswer[i], 2) << " = ";
         output += pow(neurons[neuronsConfig[0]*layer+i] - rightAnswer[i], 2);
-        // cout << output << endl;
+        // std::cout << output << std::endl;
     }
-    // cout << output << endl;
-    // cout << neuronsConfig[layer] << endl;
-    // cout << layer << endl;
+    // std::cout << output << std::endl;
+    // std::cout << neuronsConfig[layer] << std::endl;
+    // std::cout << layer << std::endl;
     output /= neuronsConfig[layer];
     return output;
 }
@@ -292,15 +292,19 @@ int Perceptron::Backpropagation(CostFunction costFunction, double learningRate)
     return 0;
 }
 
-int Perceptron::SimulatedAnnealing(CostFunction costFunction, double learningRate, int temperatureDecreaseRate)
+int Perceptron::SimulatedAnnealing(CostFunction costFunction, double learningRate)
 {
-
+    if (temperature == -1 || temperatureDecreaseRate == -1)
+    {
+        throw MyException("You must set temperature and temperatureDecreaseRate to use SimulatedAnnealing!");
+    }
+    // Work in progress...
     return 0;
 }
 
 double Perceptron::Train(ActivationFunction activationFunction, CostFunction costFunction, LearningAlgorithm learningAlgorithm, double learningRate)
 {
-    // cout << "Hello from the training function" << endl;
+    // std::cout << "Hello from the training function" << std::endl;
     CalculateNeurons(activationFunction);
     Backpropagation(costFunction, learningRate);
     double cost = 0;
@@ -322,7 +326,7 @@ double Perceptron::Train(ActivationFunction activationFunction, CostFunction cos
         default:
             break;
     }
-    cout << "Error is: " << cost << endl;
+    std::cout << "Error is: " << cost << std::endl;
     return cost;
 }
 

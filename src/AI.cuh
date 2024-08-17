@@ -3,7 +3,8 @@
 #include <string>
 #include <cmath>
 #include <vector>
-using namespace std;
+// #include <hip/hip_runtime.h>
+// using namespace std;
 
 void test();
 // __global__ void addKernel(double* a, double* b, double* c, int N);
@@ -25,6 +26,7 @@ class Perceptron
         double delta = -1;
         double clip = -1;
         double temperature = -1;
+        double temperatureDecreaseRate = -1;
         int InitCuda();
         int Init();
         double Sigmoid(double input);
@@ -37,7 +39,7 @@ class Perceptron
         double BinaryCrossEntropyLoss(int layer/* double clip */);
         double CategoricalCrossEntropyLoss(int layer);
         int Backpropagation(CostFunction costFunction, double learningRate);
-        int SimulatedAnnealing(CostFunction costFunction, double learningRate, int temperatureDecreaseRate);
+        int SimulatedAnnealing(CostFunction costFunction, double learningRate);
         double Train(ActivationFunction activationFunction, CostFunction costFunction, LearningAlgorithm leraningAlgorithm, double learningRate);
         // int TrainScore(int score, CostFunction costFunction);
         // int TrainGenerations(int generations, CostFunction costFunction);
