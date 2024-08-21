@@ -1,8 +1,9 @@
 #include <iostream>
 #include <string>
+#include <ctime>
 #include "AI.cuh"
 // #include "DatasetParser.h"
-using namespace std;
+// using namespace std;
 
 int main()
 {
@@ -19,66 +20,68 @@ int main()
 
     // float* c = new float[N];
     // add(a, b, c, N);
-    // cout << c[500] << endl;
+    // std::cout << c[500] << std::endl;
 
     Perceptron perceptron;
     int neuronsConfig[42];
     perceptron.layers = 42;
     perceptron.InitCuda();
-    // cout << sizeof(neuronsConfig) / sizeof(*neuronsConfig) << endl;
+    // std::cout << sizeof(neuronsConfig) / sizeof(*neuronsConfig) << std::endl;
     for (int i = 0; i < perceptron.layers; i++)
     {
         neuronsConfig[i] = 42;
         perceptron.neuronsConfig[i] = 42;
     }
-    cout << "neuronsConfig was set" << endl;
+    std::cout << "neuronsConfig was set" << std::endl;
     // perceptron.neuronsConfig = neuronsConfig;
     // for (int i = 0; i < perceptron.layers; i++)
     // {
     //     if (i < 10)
     //     {
-    //         cout << " " << i << "; ";
+    //         std::cout << " " << i << "; ";
     //     }
     //     else
     //     {
-    //         cout << i << "; ";
+    //         std::cout << i << "; ";
     //     }
         
     // }
-    // cout << endl;
+    // std::cout << std::endl;
     // for (int i = 0; i < perceptron.layers; i++)
     // {
-    //     cout << perceptron.neuronsConfig[i] << "; ";
+    //     std::cout << perceptron.neuronsConfig[i] << "; ";
     // }
-    // cout << endl;
+    // std::cout << std::endl;
     double rightAnswer[neuronsConfig[perceptron.layers-1]];
     perceptron.rightAnswer = rightAnswer;
     for (int i = 0; i < perceptron.neuronsConfig[perceptron.layers-1]; i++)
     {
-        perceptron.rightAnswer[i] = 0.5;
+        perceptron.rightAnswer[i] = 0.27158953;
     }
-    cout << "Right answer was set" << endl;
+    std::cout << "Right answer was set" << std::endl;
     // cudaMallocManaged(&perceptron.neurons, perceptron.layers*perceptron.neuronsConfig[0]*sizeof(double));
     perceptron.Init();
-    perceptron.temperature = 5000;
-    perceptron.temperatureDecreaseRate = 0.99;
+    // perceptron.temperature = 5000;
+    // perceptron.temperatureDecreaseRate = 0.99;
+    perceptron.learningRate = 1.0;
     // perceptron.delta = 1;
     double initialError = perceptron.Train(
         Perceptron::ActivationFunction::Sigmoid,
         Perceptron::CostFunction::MeanSquared, 
-        Perceptron::LearningAlgorithm::SimulatedAnnealing);
+        Perceptron::LearningAlgorithm::Backpropagation);
     double endError = 0;
-    for (int i = 0; i < 1000; i++)
+    int iterations = 10;
+    for (int i = 0; i < iterations; i++)
     {
-        cout << "Iteration: " << i << endl;
+        std::cout << "Iteration: " << i << std::endl;
         endError = perceptron.Train(
             Perceptron::ActivationFunction::Sigmoid,
             Perceptron::CostFunction::MeanSquared, 
-            Perceptron::LearningAlgorithm::SimulatedAnnealing);
+            Perceptron::LearningAlgorithm::Backpropagation);
     }
     // for (int i = 0; i < 1000; i++)
     // {
-    //     cout << "Iteration: " << i << endl;
+    //     std::cout << "Iteration: " << i << std::endl;
     //     endError = perceptron.Train(
     //         Perceptron::ActivationFunction::Sigmoid,
     //         Perceptron::CostFunction::MeanSquared, 
@@ -88,14 +91,16 @@ int main()
     //     Perceptron::ActivationFunction::Sigmoid,
     //     Perceptron::CostFunction::MeanSquared, 
     //     Perceptron::LearningAlgorithm::Backpropagation);
-    cout << endl;
-    cout << "Initial error was " << initialError << endl;
-    cout << "Now the error is " << endError << endl;
+    std::cout << std::endl;
+    std::cout << "Initial error was " << initialError << std::endl;
+    std::cout << "Now the error is " << endError << std::endl;
 
     // string path = "/home/semkishow/Wikipedia100/A";
     // string outputDirectory = "./dataset";
     // ParseHTML(&path[0], &outputDirectory[0]);
 
+    std::time_t time = std::time(nullptr);
+    perceptron.SaveWeights("weights"+std::to_string(iterations)+" "+std::asctime(std::localtime(&time)));
     perceptron.Free();
     // cudaFree(a);
     // cudaFree(b);

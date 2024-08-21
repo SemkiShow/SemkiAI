@@ -397,6 +397,38 @@ double Perceptron::Train(ActivationFunction activationFunction, CostFunction cos
     return cost;
 }
 
+int Perceptron::SaveWeights(std::string fileName)
+{
+    std::fstream weightsFile;
+    std::string path = "./weights/"+fileName+".csv";
+    weightsFile.open(path, std::ios::out);
+    weightsFile << layers << ",";
+    for (int i = 0; i < layers; i++)
+    {
+        weightsFile << neuronsConfig[i] << ",";
+    }
+    for (int i = 0; i < layers; i++)
+    {
+        for (int j = 0; j < neuronsConfig[i]; j++)
+        {
+            for (int k = 0; k < neuronsConfig[i]-1; k++)
+            {
+                weightsFile << weights[i*neuronsConfig[i]*(neuronsConfig[i]-1)+j*(neuronsConfig[i]-1)+k] << ",";
+            }
+        }
+    }
+    weightsFile.close();
+    weightsFile.open(path, std::ios::in);
+    std::string weightsString;
+    weightsFile >> weightsString;
+    weightsString.pop_back();
+    weightsFile.close();
+    weightsFile.open(path, std::ios::out);
+    weightsFile << weightsString;
+    weightsFile.close();
+    return 0;
+}
+
 int Perceptron::Free()
 {
     cudaFree(neurons);

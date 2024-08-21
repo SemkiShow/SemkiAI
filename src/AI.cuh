@@ -3,6 +3,7 @@
 #include <string>
 #include <cmath>
 #include <vector>
+#include <fstream>
 // #include <hip/hip_runtime.h>
 // using namespace std;
 
@@ -44,6 +45,7 @@ class Perceptron
         int Backpropagation(CostFunction costFunction);
         int SimulatedAnnealing(ActivationFunction activationFunction, CostFunction costFunction);
         double Train(ActivationFunction activationFunction, CostFunction costFunction, LearningAlgorithm leraningAlgorithm);
+        int SaveWeights(std::string fileName);
         // int TrainScore(int score, CostFunction costFunction);
         // int TrainGenerations(int generations, CostFunction costFunction);
         int Free();
