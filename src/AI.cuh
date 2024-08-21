@@ -6,7 +6,7 @@
 // #include <hip/hip_runtime.h>
 // using namespace std;
 
-void test();
+// void test();
 // __global__ void addKernel(double* a, double* b, double* c, int N);
 // void add(double* a, double* b, double* c, int N);
 class Perceptron
@@ -23,8 +23,10 @@ class Perceptron
         int* neuronsConfig;
         int layers;
         double* rightAnswer;
+        double cost = -1;
         double delta = -1;
         double clip = -1;
+        double learningRate = -1;
         double temperature = -1;
         double temperatureDecreaseRate = -1;
         int InitCuda();
@@ -38,9 +40,10 @@ class Perceptron
         double HuberLoss(int layer/* double delta */);
         double BinaryCrossEntropyLoss(int layer/* double clip */);
         double CategoricalCrossEntropyLoss(int layer);
-        int Backpropagation(CostFunction costFunction, double learningRate);
-        int SimulatedAnnealing(CostFunction costFunction, double learningRate);
-        double Train(ActivationFunction activationFunction, CostFunction costFunction, LearningAlgorithm leraningAlgorithm, double learningRate);
+        int CalculateCost(CostFunction costFunction, int layer);
+        int Backpropagation(CostFunction costFunction);
+        int SimulatedAnnealing(ActivationFunction activationFunction, CostFunction costFunction);
+        double Train(ActivationFunction activationFunction, CostFunction costFunction, LearningAlgorithm leraningAlgorithm);
         // int TrainScore(int score, CostFunction costFunction);
         // int TrainGenerations(int generations, CostFunction costFunction);
         int Free();

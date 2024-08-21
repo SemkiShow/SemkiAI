@@ -55,17 +55,18 @@ int main()
     perceptron.rightAnswer = rightAnswer;
     for (int i = 0; i < perceptron.neuronsConfig[perceptron.layers-1]; i++)
     {
-        perceptron.rightAnswer[i] = 1.0;
+        perceptron.rightAnswer[i] = 0.5;
     }
     cout << "Right answer was set" << endl;
     // cudaMallocManaged(&perceptron.neurons, perceptron.layers*perceptron.neuronsConfig[0]*sizeof(double));
     perceptron.Init();
+    perceptron.temperature = 5000;
+    perceptron.temperatureDecreaseRate = 0.99;
     // perceptron.delta = 1;
     double initialError = perceptron.Train(
         Perceptron::ActivationFunction::Sigmoid,
         Perceptron::CostFunction::MeanSquared, 
-        Perceptron::LearningAlgorithm::Backpropagation, 
-        1.0);
+        Perceptron::LearningAlgorithm::SimulatedAnnealing);
     double endError = 0;
     for (int i = 0; i < 1000; i++)
     {
@@ -73,14 +74,20 @@ int main()
         endError = perceptron.Train(
             Perceptron::ActivationFunction::Sigmoid,
             Perceptron::CostFunction::MeanSquared, 
-            Perceptron::LearningAlgorithm::Backpropagation, 
-            10.0);
+            Perceptron::LearningAlgorithm::SimulatedAnnealing);
     }
+    // for (int i = 0; i < 1000; i++)
+    // {
+    //     cout << "Iteration: " << i << endl;
+    //     endError = perceptron.Train(
+    //         Perceptron::ActivationFunction::Sigmoid,
+    //         Perceptron::CostFunction::MeanSquared, 
+    //         Perceptron::LearningAlgorithm::Backpropagation);
+    // }
     // double endError = perceptron.Train(
     //     Perceptron::ActivationFunction::Sigmoid,
     //     Perceptron::CostFunction::MeanSquared, 
-    //     Perceptron::LearningAlgorithm::Backpropagation, 
-    //     1.0);
+    //     Perceptron::LearningAlgorithm::Backpropagation);
     cout << endl;
     cout << "Initial error was " << initialError << endl;
     cout << "Now the error is " << endError << endl;

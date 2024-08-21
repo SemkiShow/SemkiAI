@@ -37,7 +37,7 @@ int Perceptron::InitCuda()
     cudaMallocManaged(&neuronsConfig, layers*sizeof(int));
     // cudaMallocManaged(&neurons, layers*neuronsConfig[0]*sizeof(double));
     // cudaMallocManaged(&weights, layers*neuronsConfig[0]*(neuronsConfig[0]-1)*sizeof(double));
-    std::cout << "cuda was initialized" << std::endl; 
+    std::cout << "Cuda was initialized" << std::endl; 
     return 0;
 }
 
@@ -150,9 +150,24 @@ int Perceptron::CalculateNeurons(ActivationFunction activationFunction)
     return 0;
 }
 
+// __global__
+// void MeanSquaredErrorKernel(double* neurons, int* neuronsConfig, double* rightAnswer, int layer, double output)
+// {
+//     int index = blockIdx.x * blockDim.x + threadIdx.x;
+//     int stride = blockDim.x * gridDim.x;
+//     for (int i = index; i < neuronsConfig[layer]; i+=stride)
+//     {
+//         output += pow(neurons[neuronsConfig[0]*layer+i] - rightAnswer[i], 2);
+//     }
+// }
+
 double Perceptron::MeanSquaredError(int layer)
 {
     double output = 0.0;
+    // gpuThreads = 256;
+    // gpuBlocks = (neuronsConfig[layer] + gpuThreads - 1) / gpuThreads;
+    // MeanSquaredErrorKernel<<<gpuBlocks, gpuThreads>>>(neurons, neuronsConfig, rightAnswer, layer, output);
+    // cudaDeviceSynchronize();
     for (int i = 0; i < neuronsConfig[layer]; i++)
     {
         // std::cout << neurons[neuronsConfig[0]*layer+i] << " - " << rightAnswer[i] << " = " << neurons[neuronsConfig[0]*layer+i] - rightAnswer[i] << std::endl;
@@ -229,6 +244,29 @@ double Perceptron::CategoricalCrossEntropyLoss(int layer)
     return output;
 }
 
+int Perceptron::CalculateCost(CostFunction costFunction, int layer)
+{
+    switch (costFunction)
+    {
+        case CostFunction::MeanSquared:
+            cost = MeanSquaredError(layer);
+            break;
+        case CostFunction::MeanAbsolute:
+            cost = MeanAbsoluteError(layer);
+            break;
+        case CostFunction::Huber:
+            cost = HuberLoss(layer);
+            break;
+        case CostFunction::BinaryCrossEntropy:
+            cost = BinaryCrossEntropyLoss(layer);
+            break;
+        
+        default:
+            break;
+    }
+    return 0;
+}
+
 __global__
 void CalculateErrorKernel(double* neurons, int* neuronsConfig, double* rightAnswer, int layers, int i, double* error)
 {
@@ -260,8 +298,13 @@ void BackpropagationKernel(double* neurons, double* weights, int* neuronsConfig,
     }
 }
 
-int Perceptron::Backpropagation(CostFunction costFunction, double learningRate)
+int Perceptron::Backpropagation(CostFunction costFunction)
 {
+    if (learningRate == -1)
+    {
+        throw MyException("You must set learningRate to use Backpropagation!");
+    }
+
     double* error = new double[neuronsConfig[0]*layers];
     // double tmp;
     for (int i = 0; i < layers; i++)
@@ -292,41 +335,65 @@ int Perceptron::Backpropagation(CostFunction costFunction, double learningRate)
     return 0;
 }
 
-int Perceptron::SimulatedAnnealing(CostFunction costFunction, double learningRate)
+int Perceptron::SimulatedAnnealing(ActivationFunction activationFunction, CostFunction costFunction)
 {
     if (temperature == -1 || temperatureDecreaseRate == -1)
     {
         throw MyException("You must set temperature and temperatureDecreaseRate to use SimulatedAnnealing!");
     }
-    // Work in progress...
+    
+    Perceptron candidate = *this;
+    // std::cout << candidate.temperature << std::endl;
+    for (int i = 0; i < temperature; i++)
+    {
+        candidate.weights[(int)(dist1000(rng) * (layers*neuronsConfig[0]*(neuronsConfig[0]-1) / 1000))] = dist1000(rng) * 1.0 / 1000;
+    }
+    candidate.CalculateNeurons(activationFunction);
+    
+    CalculateCost(costFunction, layers-1);
+    candidate.CalculateCost(costFunction, layers-1);
+
+    if (cost < candidate.cost)
+    {
+        weights = candidate.weights;
+    }
+    else
+    {
+        double deltaCost = cost - candidate.cost;
+        // std::cout << cost << "; " << candidate.cost << std::endl;
+        // std::cout << "Delta cost: " << deltaCost << std::endl;
+        if ((dist1000(rng) * 1.0 / 1000) > exp(deltaCost / temperature))
+        {
+            weights = candidate.weights;
+        }
+    }
+    
+    temperature *= temperatureDecreaseRate;
+    std::cout << "Temperature: " << temperature << std::endl;
+    // free(&candidate);
+    // delete &candidate;
     return 0;
 }
 
-double Perceptron::Train(ActivationFunction activationFunction, CostFunction costFunction, LearningAlgorithm learningAlgorithm, double learningRate)
+double Perceptron::Train(ActivationFunction activationFunction, CostFunction costFunction, LearningAlgorithm learningAlgorithm)
 {
     // std::cout << "Hello from the training function" << std::endl;
     CalculateNeurons(activationFunction);
-    Backpropagation(costFunction, learningRate);
-    double cost = 0;
-    switch (costFunction)
+    switch (learningAlgorithm)
     {
-        case CostFunction::MeanSquared:
-            cost = MeanSquaredError(layers-1);
+        case LearningAlgorithm::Backpropagation:
+            Backpropagation(costFunction);
             break;
-        case CostFunction::MeanAbsolute:
-            cost = MeanAbsoluteError(layers-1);
-            break;
-        case CostFunction::Huber:
-            cost = HuberLoss(layers-1);
-            break;
-        case CostFunction::BinaryCrossEntropy:
-            cost = BinaryCrossEntropyLoss(layers-1);
+        case LearningAlgorithm::SimulatedAnnealing:
+            SimulatedAnnealing(activationFunction, costFunction);
             break;
         
         default:
             break;
     }
-    std::cout << "Error is: " << cost << std::endl;
+    // double cost = 0;
+    CalculateCost(costFunction, layers-1);
+    std::cout << "Error: " << cost << std::endl;
     return cost;
 }
 
