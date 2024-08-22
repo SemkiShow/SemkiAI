@@ -31,7 +31,6 @@
    2. Set the [required variables](#required-variables) for your chosen training function. Example for Backpropagation: ```perceptron.learningRate = 1.0;```
    3. Call the Train function (See also: [Activation functions](#activation-functions), [Cost functions](#cost-functions), [Learning algorithms](#learning-algorithms)) ```perceptron.Train(ActivationFunction, CostFunction, LearningAlgorithm);```
 8. Save your weights to a file. The weights are located in the weights directory ```perceptron.SaveWeights("NameOfTheWeightsFile");```
-9.  Free the memory taken by neurons and weights ```perceptron.Free();```
 
 #### Required variables
 | Training function | Required variables |

@@ -51,6 +51,16 @@ int Perceptron::InitCuda()
 int Perceptron::Init()
 {
     // cudaMallocManaged(&neuronsConfig, layers*sizeof(int));
+    double spaceTaken = layers;
+    spaceTaken /= 1024;
+    spaceTaken *= neuronsConfig[0];
+    spaceTaken /= 1024;
+    spaceTaken *= 8;
+    spaceTaken /= 1024;
+    spaceTaken *= neuronsConfig[0]-1;
+    spaceTaken += spaceTaken/(neuronsConfig[0]-1);
+    std::cout << "The neural network requires " << (spaceTaken) << " GiB of RAM. Continue? (Enter/Ctrl-C)" << std::endl;
+    std::getchar();
     if (useGPU)
     {
         cudaMallocManaged(&neurons, layers*neuronsConfig[0]*sizeof(double));
@@ -66,7 +76,8 @@ int Perceptron::Init()
         {
             // std::cout << i*neuronsConfig[0]+j << std::endl;
             // std::cout << dist1000(rng) * 1.0 / 1000 << std::endl;
-            neurons[i*neuronsConfig[0]+j] = dist1000(rng) * 1.0 / 1000;
+            // neurons[i*neuronsConfig[0]+j] = dist1000(rng) * 1.0 / 1000;
+            neurons[i*neuronsConfig[0]+j] = 0.213580;
             // std::cout << neurons[i*neuronsConfig[0]+j] << std::endl;
         }
     }
@@ -93,7 +104,8 @@ int Perceptron::Init()
                 // }
                 // lastIndex = i*neuronsConfig[i]*(neuronsConfig[i]-1)+j*(neuronsConfig[i]-1)+k;
                 // std::cout << i*neuronsConfig[i]*(neuronsConfig[i]-1)+j*(neuronsConfig[i]-1)+k << std::endl;
-                weights[i*neuronsConfig[i]*(neuronsConfig[i]-1)+j*(neuronsConfig[i]-1)+k] = dist1000(rng) * 1.0 / 1000;
+                // weights[i*neuronsConfig[i]*(neuronsConfig[i]-1)+j*(neuronsConfig[i]-1)+k] = dist1000(rng) * 1.0 / 1000;
+                weights[i*neuronsConfig[i]*(neuronsConfig[i]-1)+j*(neuronsConfig[i]-1)+k] = 0.21345;
             }
         }
     }
@@ -461,6 +473,23 @@ double Perceptron::Train(ActivationFunction activationFunction, CostFunction cos
     return cost;
 }
 
+int Perceptron::Free()
+{
+    if (useGPU)
+    {
+        cudaFree(neurons);
+        cudaFree(weights);
+        cudaFree(neuronsConfig);        
+    }
+    else
+    {
+        free(neurons);
+        free(weights);
+        free(neuronsConfig);
+    }
+    return 0;
+}
+
 int Perceptron::SaveWeights(std::string fileName)
 {
     std::fstream weightsFile;
@@ -480,32 +509,20 @@ int Perceptron::SaveWeights(std::string fileName)
                 weightsFile << weights[i*neuronsConfig[i]*(neuronsConfig[i]-1)+j*(neuronsConfig[i]-1)+k] << ",";
             }
         }
+        weightsFile << std::endl;
+        std::cout << "Saving the weights..." << std::endl;
+        double progress = i*1.0/layers*100;
+        std::cout << "Progress: " << progress << "%" << std::endl;
     }
+    Free();
     weightsFile.close();
-    weightsFile.open(path, std::ios::in);
-    std::string weightsString;
-    weightsFile >> weightsString;
-    weightsString.pop_back();
-    weightsFile.close();
-    weightsFile.open(path, std::ios::out);
-    weightsFile << weightsString;
-    weightsFile.close();
-    return 0;
-}
-
-int Perceptron::Free()
-{
-    if (useGPU)
-    {
-        cudaFree(neurons);
-        cudaFree(weights);
-        cudaFree(neuronsConfig);        
-    }
-    else
-    {
-        free(neurons);
-        free(weights);
-        free(neuronsConfig);
-    }
+    // weightsFile.open(path, std::ios::in);
+    // std::string weightsString;
+    // weightsFile >> weightsString;
+    // weightsString.pop_back();
+    // weightsFile.close();
+    // weightsFile.open(path, std::ios::out);
+    // weightsFile << weightsString;
+    // weightsFile.close();
     return 0;
 }

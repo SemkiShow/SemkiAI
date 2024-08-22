@@ -25,13 +25,13 @@ int main()
     Perceptron perceptron;
     // int neuronsConfig[42];
     perceptron.useGPU = true;
-    perceptron.layers = 42;
+    perceptron.layers = 2345;
     perceptron.InitCuda();
     // std::cout << sizeof(neuronsConfig) / sizeof(*neuronsConfig) << std::endl;
     for (int i = 0; i < perceptron.layers; i++)
     {
         // neuronsConfig[i] = 42;
-        perceptron.neuronsConfig[i] = 42;
+        perceptron.neuronsConfig[i] = 345;
     }
     std::cout << "neuronsConfig was set" << std::endl;
     // perceptron.neuronsConfig = neuronsConfig;
@@ -71,7 +71,7 @@ int main()
         Perceptron::CostFunction::MeanSquared, 
         Perceptron::LearningAlgorithm::Backpropagation);
     double endError = 0;
-    int iterations = 10000;
+    int iterations = 100;
     for (int i = 0; i < iterations; i++)
     {
         std::cout << "Iteration: " << i << std::endl;
@@ -102,7 +102,7 @@ int main()
 
     std::time_t time = std::time(nullptr);
     perceptron.SaveWeights("weights"+std::to_string(iterations)+" "+std::asctime(std::localtime(&time)));
-    perceptron.Free();
+    // perceptron.Free();
     // cudaFree(a);
     // cudaFree(b);
     // cudaFree(c);
