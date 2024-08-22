@@ -8,15 +8,30 @@
 ### Perceptron
 1. Create an instance of the Perceptron class ```Perceptron perceptron;```
 2. Set the amount of layers ```perceptron.layers = 6;```
-3. Initialize CUDA ```perceptron.InitCuda();```
-4. Initialize neuronsConfig. The first layer must contain the biggest amount of neurons ```perceptron.neuronsConfig[i] = 123;```
-5. Initialize the perceptron ```perceptron.Init();```
-6. Run a training cycle
-   1. Set the right answer ```perceptron.rightAnswer[i] = 1.0;```
+3. Set the useGPU variable to false if you don't have a CUDA-capable NVIDIA GPU ```perceptron.useGPU = false;```
+4. Initialize CUDA ```perceptron.InitCuda();```
+5. Initialize neuronsConfig. The first layer must contain the biggest amount of neurons 
+   ```c++
+   for (int i = 0; i < perceptron.layers; i++)
+   {
+      perceptron.neuronsConfig[i] = 123;
+   }
+   ```
+6. Initialize the perceptron ```perceptron.Init();```
+7. Run a training cycle
+   1. Set the right answer 
+   ```c++
+   double rightAnswer[perceptron.neuronsConfig[perceptron.layers-1]];
+   perceptron.rightAnswer = rightAnswer;
+   for (int i = 0; i < perceptron.neuronsConfig[perceptron.layers-1]; i++)
+   {
+      perceptron.rightAnswer[i] = 0.27158953;
+   }
+   ```
    2. Set the [required variables](#required-variables) for your chosen training function. Example for Backpropagation: ```perceptron.learningRate = 1.0;```
    3. Call the Train function (See also: [Activation functions](#activation-functions), [Cost functions](#cost-functions), [Learning algorithms](#learning-algorithms)) ```perceptron.Train(ActivationFunction, CostFunction, LearningAlgorithm);```
-7. Save your weights to a file. The weights are located in the weights directory ```perceptron.SaveWeights("NameOfTheWeightsFile");```
-8. Free the memory taken by neurons and weights ```perceptron.Free();```
+8. Save your weights to a file. The weights are located in the weights directory ```perceptron.SaveWeights("NameOfTheWeightsFile");```
+9.  Free the memory taken by neurons and weights ```perceptron.Free();```
 
 #### Required variables
 | Training function | Required variables |

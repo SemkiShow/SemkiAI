@@ -19,6 +19,7 @@ class Perceptron
         enum class CostFunction {MeanSquared, MeanAbsolute, Huber, BinaryCrossEntropy, CategoricalCrossEntropy};
         enum class ActivationFunction {Sigmoid, ReLU, Tanh};
         enum class LearningAlgorithm {Backpropagation, SimulatedAnnealing};
+        bool useGPU = true;
         int gpuThreads;
         int gpuBlocks;
         int* neuronsConfig;

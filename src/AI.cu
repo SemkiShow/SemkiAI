@@ -34,7 +34,14 @@ public:
 
 int Perceptron::InitCuda()
 {
-    cudaMallocManaged(&neuronsConfig, layers*sizeof(int));
+    if (useGPU)
+    {
+        cudaMallocManaged(&neuronsConfig, layers*sizeof(int));
+    }
+    else
+    {
+        neuronsConfig = (int*)malloc(layers*sizeof(int));
+    }
     // cudaMallocManaged(&neurons, layers*neuronsConfig[0]*sizeof(double));
     // cudaMallocManaged(&weights, layers*neuronsConfig[0]*(neuronsConfig[0]-1)*sizeof(double));
     std::cout << "Cuda was initialized" << std::endl; 
@@ -44,8 +51,14 @@ int Perceptron::InitCuda()
 int Perceptron::Init()
 {
     // cudaMallocManaged(&neuronsConfig, layers*sizeof(int));
-
-    cudaMallocManaged(&neurons, layers*neuronsConfig[0]*sizeof(double));
+    if (useGPU)
+    {
+        cudaMallocManaged(&neurons, layers*neuronsConfig[0]*sizeof(double));
+    }
+    else
+    {
+        neurons = (double*)malloc(layers*neuronsConfig[0]*sizeof(double));
+    }
     // std::cout << layers*neuronsConfig[0] << std::endl;
     for (int i = 0; i < layers; i++)
     {
@@ -59,7 +72,14 @@ int Perceptron::Init()
     }
     std::cout << "Neurons were initialized" << std::endl;
 
-    cudaMallocManaged(&weights, layers*neuronsConfig[0]*(neuronsConfig[0]-1)*sizeof(double));
+    if (useGPU)
+    {
+        cudaMallocManaged(&weights, layers*neuronsConfig[0]*(neuronsConfig[0]-1)*sizeof(double));
+    }
+    else
+    {
+        weights = (double*)malloc(layers*neuronsConfig[0]*(neuronsConfig[0]-1)*sizeof(double));
+    }
     // int lastIndex = 0;
     for (int i = 0; i < layers; i++)
     {
@@ -98,19 +118,27 @@ double Perceptron::Tanh(double input)
 }
 
 __global__
-void CalculateNeuronsKernel(double* neurons, double* weights, int* neuronsConfig, int layers, int layer)
+void CalculateNeuronsKernel(double* neurons, double* weights, int* neuronsConfig, int layers, int i)
 {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     int stride = blockDim.x * gridDim.x;
     // int index = threadIdx.x;
     // int stride = blockDim.x;
 
-    for (int i = index; i < neuronsConfig[layer+1]; i+=stride)
+    // for (int i = index; i < neuronsConfig[layer+1]; i+=stride)
+    // {
+    //     neurons[neuronsConfig[0]*(layer+1)+i] = 0;
+    //     for (int j = 0; j < neuronsConfig[layer]; j++)
+    //     {
+    //         neurons[neuronsConfig[0]*(layer+1)+i] += neurons[neuronsConfig[0]*layer+j] * weights[layer*neuronsConfig[0]*(neuronsConfig[0]-1)+j*(neuronsConfig[0]-1)+i];
+    //     }
+    // }
+    for (int j = index; j < neuronsConfig[i+1]; j+=stride)
     {
-        neurons[neuronsConfig[0]*(layer+1)+i] = 0;
-        for (int j = 0; j < neuronsConfig[layer]; j++)
+        neurons[neuronsConfig[0]*(i+1)+j] = 0;
+        for (int k = 0; k < neuronsConfig[i]; k++)
         {
-            neurons[neuronsConfig[0]*(layer+1)+i] += neurons[neuronsConfig[0]*layer+j] * weights[layer*neuronsConfig[0]*(neuronsConfig[0]-1)+j*(neuronsConfig[0]-1)+i];
+            neurons[neuronsConfig[0]*(i+1)+j] += neurons[neuronsConfig[0]*i+k] * weights[i*neuronsConfig[0]*(neuronsConfig[0]-1)+k*(neuronsConfig[0]-1)+j];
         }
     }
 }
@@ -120,10 +148,24 @@ int Perceptron::CalculateNeurons(ActivationFunction activationFunction)
     for (int i = 0; i < layers-1; i++)
     {
         // std::cout << i << std::endl;
-        gpuThreads = 256;
-        gpuBlocks = (neuronsConfig[i] + gpuThreads - 1) / gpuThreads;
-        CalculateNeuronsKernel<<<gpuBlocks, gpuThreads>>>(neurons, weights, neuronsConfig, layers, i);
-        cudaDeviceSynchronize();
+        if (useGPU)
+        {
+            gpuThreads = 256;
+            gpuBlocks = (neuronsConfig[i] + gpuThreads - 1) / gpuThreads;
+            CalculateNeuronsKernel<<<gpuBlocks, gpuThreads>>>(neurons, weights, neuronsConfig, layers, i);
+            cudaDeviceSynchronize();
+        }
+        else
+        {
+            for (int j = 0; j < neuronsConfig[i+1]; j++)
+            {
+                neurons[neuronsConfig[0]*(i+1)+j] = 0;
+                for (int k = 0; k < neuronsConfig[i]; k++)
+                {
+                    neurons[neuronsConfig[0]*(i+1)+j] += neurons[neuronsConfig[0]*i+k] * weights[i*neuronsConfig[0]*(neuronsConfig[0]-1)+k*(neuronsConfig[0]-1)+j];
+                }
+            }
+        }
     }
     for (int i = neuronsConfig[0]*(layers-1); i < neuronsConfig[0]*layers; i++)
     {
@@ -306,32 +348,54 @@ int Perceptron::Backpropagation(CostFunction costFunction)
     }
 
     double* error = new double[neuronsConfig[0]*layers];
-    // double tmp;
+    double tmp = 0.0;
+    // if (useGPU)
+    // {
+    //     delete &tmp;
+    // }
     for (int i = 0; i < layers; i++)
     {
-        gpuThreads = 256;
-        gpuBlocks = (neuronsConfig[i] + gpuThreads - 1) / gpuThreads;
-        CalculateErrorKernel<<<gpuBlocks, gpuThreads>>>(neurons, neuronsConfig, rightAnswer, layers, i, error);
-        // for (int j = 0; j < neuronsConfig[i]; j++)
-        // {
-        //     tmp = neurons[neuronsConfig[0]*(layers-1)+i];
-        //     error[i*neuronsConfig[0]+j] = tmp*(1-tmp)*(rightAnswer[i]-tmp);
-        // }
+        if (useGPU)
+        {
+            gpuThreads = 256;
+            gpuBlocks = (neuronsConfig[i] + gpuThreads - 1) / gpuThreads;
+            CalculateErrorKernel<<<gpuBlocks, gpuThreads>>>(neurons, neuronsConfig, rightAnswer, layers, i, error);
+        }
+        else
+        {
+            for (int j = 0; j < neuronsConfig[i]; j++)
+            {
+                tmp = neurons[neuronsConfig[0]*(layers-1)+i];
+                error[i*neuronsConfig[0]+j] = tmp*(1-tmp)*(rightAnswer[i]-tmp);
+            }
+        }
     }
-    cudaDeviceSynchronize();
+    if (useGPU)
+    {
+        cudaDeviceSynchronize();
+    }
     for (int i = layers-2; i > 0; i--)
     {
         for (int j = 0; j < neuronsConfig[i]; j++)
         {
-            BackpropagationKernel<<<gpuBlocks, gpuThreads>>>(neurons, weights, neuronsConfig, error, learningRate, i, j);
-            // for (int k = 0; k < neuronsConfig[i+1]; k++)
-            // {
-            //     weights[i*neuronsConfig[i]*(neuronsConfig[i]-1)+j*(neuronsConfig[i]-1)+k] += 
-            //     learningRate*neurons[neuronsConfig[0]*i+j]*error[k];
-            // }
+            if (useGPU)
+            {
+                BackpropagationKernel<<<gpuBlocks, gpuThreads>>>(neurons, weights, neuronsConfig, error, learningRate, i, j);
+            }
+            else
+            {
+                for (int k = 0; k < neuronsConfig[i+1]; k++)
+                {
+                    weights[i*neuronsConfig[i]*(neuronsConfig[i]-1)+j*(neuronsConfig[i]-1)+k] += 
+                    learningRate*neurons[neuronsConfig[0]*i+j]*error[k];
+                }
+            }
         }
     }
-    cudaDeviceSynchronize();
+    if (useGPU)
+    {
+        cudaDeviceSynchronize();
+    }
     return 0;
 }
 
@@ -431,8 +495,17 @@ int Perceptron::SaveWeights(std::string fileName)
 
 int Perceptron::Free()
 {
-    cudaFree(neurons);
-    cudaFree(weights);
-    cudaFree(neuronsConfig);
+    if (useGPU)
+    {
+        cudaFree(neurons);
+        cudaFree(weights);
+        cudaFree(neuronsConfig);        
+    }
+    else
+    {
+        free(neurons);
+        free(weights);
+        free(neuronsConfig);
+    }
     return 0;
 }
