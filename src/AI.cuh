@@ -22,8 +22,8 @@ class Perceptron
         bool useGPU = true;
         int gpuThreads;
         int gpuBlocks;
-        int* neuronsConfig;
         int layers;
+        int* neuronsConfig;
         double* rightAnswer;
         double cost = -1;
         double delta = -1;

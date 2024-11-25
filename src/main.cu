@@ -23,18 +23,19 @@ int main()
     // std::cout << c[500] << std::endl;
 
     Perceptron perceptron;
-    // int neuronsConfig[42];
     perceptron.useGPU = true;
-    perceptron.layers = 2345;
+    perceptron.layers = 123;
+    // int neuronsConfig[perceptron.layers];
     perceptron.InitCuda();
     // std::cout << sizeof(neuronsConfig) / sizeof(*neuronsConfig) << std::endl;
+    std::cout << perceptron.layers << std::endl;
     for (int i = 0; i < perceptron.layers; i++)
     {
-        // neuronsConfig[i] = 42;
-        perceptron.neuronsConfig[i] = 345;
+        // neuronsConfig[i] = 345;
+        perceptron.neuronsConfig[i] = 456;
     }
-    std::cout << "neuronsConfig was set" << std::endl;
     // perceptron.neuronsConfig = neuronsConfig;
+    std::cout << "neuronsConfig was set" << std::endl;
     // for (int i = 0; i < perceptron.layers; i++)
     // {
     //     if (i < 10)
@@ -71,7 +72,7 @@ int main()
         Perceptron::CostFunction::MeanSquared, 
         Perceptron::LearningAlgorithm::Backpropagation);
     double endError = 0;
-    int iterations = 100;
+    int iterations = 789;
     for (int i = 0; i < iterations; i++)
     {
         std::cout << "Iteration: " << i << std::endl;
@@ -100,8 +101,15 @@ int main()
     // string outputDirectory = "./dataset";
     // ParseHTML(&path[0], &outputDirectory[0]);
 
-    std::time_t time = std::time(nullptr);
-    perceptron.SaveWeights("weights"+std::to_string(iterations)+" "+std::asctime(std::localtime(&time)));
+    // std::time_t time = std::time(nullptr);
+    double spaceTaken = perceptron.layers;
+    spaceTaken /= 1024;
+    spaceTaken *= perceptron.neuronsConfig[0];
+    spaceTaken /= 1024;
+    spaceTaken *= 8;
+    spaceTaken /= 1024;
+    spaceTaken *= perceptron.neuronsConfig[0]-1;
+    perceptron.SaveWeights("weights"+std::to_string(iterations)+" "+std::to_string(spaceTaken)+"GB");
     // perceptron.Free();
     // cudaFree(a);
     // cudaFree(b);

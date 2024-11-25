@@ -34,17 +34,14 @@ public:
 
 int Perceptron::InitCuda()
 {
+    neuronsConfig = new int[layers];
     if (useGPU)
     {
         cudaMallocManaged(&neuronsConfig, layers*sizeof(int));
-    }
-    else
-    {
-        neuronsConfig = (int*)malloc(layers*sizeof(int));
+        std::cout << "Cuda was initialized" << std::endl; 
     }
     // cudaMallocManaged(&neurons, layers*neuronsConfig[0]*sizeof(double));
     // cudaMallocManaged(&weights, layers*neuronsConfig[0]*(neuronsConfig[0]-1)*sizeof(double));
-    std::cout << "Cuda was initialized" << std::endl; 
     return 0;
 }
 
@@ -61,13 +58,10 @@ int Perceptron::Init()
     spaceTaken += spaceTaken/(neuronsConfig[0]-1);
     std::cout << "The neural network requires " << (spaceTaken) << " GiB of RAM. Continue? (Enter/Ctrl-C)" << std::endl;
     std::getchar();
+    neurons = new double[layers*neuronsConfig[0]];
     if (useGPU)
     {
         cudaMallocManaged(&neurons, layers*neuronsConfig[0]*sizeof(double));
-    }
-    else
-    {
-        neurons = (double*)malloc(layers*neuronsConfig[0]*sizeof(double));
     }
     // std::cout << layers*neuronsConfig[0] << std::endl;
     for (int i = 0; i < layers; i++)
@@ -83,13 +77,10 @@ int Perceptron::Init()
     }
     std::cout << "Neurons were initialized" << std::endl;
 
+    weights = new double[layers*neuronsConfig[0]*(neuronsConfig[0]-1)];
     if (useGPU)
     {
         cudaMallocManaged(&weights, layers*neuronsConfig[0]*(neuronsConfig[0]-1)*sizeof(double));
-    }
-    else
-    {
-        weights = (double*)malloc(layers*neuronsConfig[0]*(neuronsConfig[0]-1)*sizeof(double));
     }
     // int lastIndex = 0;
     for (int i = 0; i < layers; i++)
