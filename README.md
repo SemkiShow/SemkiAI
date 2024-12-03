@@ -5,8 +5,8 @@
 2. Run compile.sh
 3. Run the compiled binary manually if there are any run errors. It is located in build/bin/
 ## How to use
-### Perceptron
-1. Create an instance of the Perceptron class ```Perceptron perceptron;```
+See the examples in the examples/ directory
+<!-- 1. Create an instance of the Perceptron class ```Perceptron perceptron;```
 2. Set the amount of layers ```perceptron.layers = 6;```
 3. Set the useGPU variable to false if you don't have a CUDA-capable NVIDIA GPU ```perceptron.useGPU = false;```
 4. Initialize CUDA ```perceptron.InitCuda();```
@@ -30,7 +30,7 @@
    ```
    2. Set the [required variables](#required-variables) for your chosen training function. Example for Backpropagation: ```perceptron.learningRate = 1.0;```
    3. Call the Train function (See also: [Activation functions](#activation-functions), [Cost functions](#cost-functions), [Learning algorithms](#learning-algorithms)) ```perceptron.Train(ActivationFunction, CostFunction, LearningAlgorithm);```
-8. Save your weights to a file. The weights are located in the weights directory ```perceptron.SaveWeights("NameOfTheWeightsFile");```
+8. Save your weights to a file. The weights are located in the weights directory ```perceptron.SaveWeights("NameOfTheWeightsFile");``` -->
 
 #### Required variables
 | Training function | Required variables |
