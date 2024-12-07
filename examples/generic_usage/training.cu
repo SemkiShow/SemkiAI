@@ -1,4 +1,4 @@
-#include "../../src/AI.cuh"
+#include "../../src/SemkiAI.hpp"
 
 int main()
 {

@@ -28,7 +28,7 @@ class Perceptron
         double temperature = -1;
         double temperatureDecreaseRate = -1;
         int InitCuda();
-        int Init();
+        int Init(bool confirm);
 
         double Sigmoid(double input);
         double ReLU(double input);
@@ -47,6 +47,7 @@ class Perceptron
         double Train(ActivationFunction activationFunction, CostFunction costFunction, LearningAlgorithm leraningAlgorithm);
         
         int SaveWeights(std::string fileName);
+        int LoadWeights(std::string fileName);
         // int TrainScore(int score, CostFunction costFunction);
         // int TrainGenerations(int generations, CostFunction costFunction);
         int Free();
@@ -86,23 +87,26 @@ int Perceptron::InitCuda()
     return 0;
 }
 
-int Perceptron::Init()
+int Perceptron::Init(bool confirm = true)
 {
     for (int i = 0; i < layers; i++)
     {
         if (neuronsConfig[i] > maxNeurons) maxNeurons = neuronsConfig[i];
     }
     std::cout << maxNeurons << std::endl;
-    double spaceTaken = layers;
-    spaceTaken /= 1024;
-    spaceTaken *= maxNeurons;
-    spaceTaken /= 1024;
-    spaceTaken *= 8;
-    spaceTaken /= 1024;
-    spaceTaken *= maxNeurons-1;
-    spaceTaken += spaceTaken/(maxNeurons-1);
-    std::cout << "The neural network requires " << (spaceTaken) << " GiB of RAM. Continue? (Enter/Ctrl-C)" << std::endl;
-    std::getchar();
+    if (confirm)
+    {
+        double spaceTaken = layers;
+        spaceTaken /= 1024;
+        spaceTaken *= maxNeurons;
+        spaceTaken /= 1024;
+        spaceTaken *= 8;
+        spaceTaken /= 1024;
+        spaceTaken *= maxNeurons-1;
+        spaceTaken += spaceTaken/(maxNeurons-1);
+        std::cout << "The neural network requires " << (spaceTaken) << " GiB of RAM. Continue? (Enter/Ctrl-C)" << std::endl;
+        std::getchar();
+    }
     neurons = new double[layers*maxNeurons];
     if (useGPU)
     {
@@ -510,5 +514,53 @@ int Perceptron::SaveWeights(std::string fileName)
     }
     Free();
     weightsFile.close();
+    return 0;
+}
+
+int Perceptron::LoadWeights(std::string fileName)
+{
+    std::fstream weightsFile;
+    std::string path = "../weights/"+fileName+".csv";
+    weightsFile.open(path, std::ios::in);
+    // Load the data into a temporary string
+    std::string buf;
+    std::vector<std::string> input;
+    while (std::getline(weightsFile, buf))
+    {
+        input.push_back(buf);
+    }
+    weightsFile.close();
+    // Split the data
+    std::vector<std::string> data;
+    data.push_back("");
+    unsigned long long index = 0;
+    for (int j = 0; j < input.size(); j++)
+    {
+        for (unsigned long long i = 0; i < input[j].size(); i++)
+        {
+            if (input[j][i] == ',')
+            {
+                data.push_back("");
+                index++;
+                continue;
+            }
+            data[index] += input[j][i];
+        }
+    }
+    // Debug info
+    // for (int i = 0; i < 1000; i++)
+    // {
+    //     std::cout << data[i] << ", ";
+    // }
+    // std::cout << std::endl;
+    // Work with the collected data
+    layers = stoi(data[0]);
+    InitCuda();
+    for (int i = 0; i < layers; i++)
+    {
+        neuronsConfig[i] = stoi(data[i+1]);
+    }
+    rightAnswer = new double[neuronsConfig[layers-1]];
+    Init(false);
     return 0;
 }

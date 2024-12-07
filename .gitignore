@@ -3,3 +3,4 @@ build
 dataset/*
 weights/*
 examples/*/weights/*
+examples/*/build/*

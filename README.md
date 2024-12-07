@@ -3,14 +3,14 @@
 0. You must have a CUDA-capable NVIDIA GPU to run this library or set the useGPU variable to false
 1. Install the latest CUDA SDK
 2. Run compile.sh
-3. Run the compiled binary manually if there are any run errors. It is located in build/bin/
+3. Run the compiled binary manually. The compiled binaries are located in examples/*/build/
 ## How to use
 See the examples in the examples/ directory
 <!-- 1. Create an instance of the Perceptron class ```Perceptron perceptron;```
 2. Set the amount of layers ```perceptron.layers = 6;```
 3. Set the useGPU variable to false if you don't have a CUDA-capable NVIDIA GPU ```perceptron.useGPU = false;```
 4. Initialize CUDA ```perceptron.InitCuda();```
-5. Initialize neuronsConfig. The first layer must contain the biggest amount of neurons 
+5. Initialize neuronsConfig.
    ```c++
    for (int i = 0; i < perceptron.layers; i++)
    {
