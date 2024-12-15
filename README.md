@@ -13,9 +13,11 @@ Doesn't depend on anything special
 This is a classic neural networks example. A neural network that recognises handwritten digits.
 
 **This example depends on [libpng](http://www.libpng.org/pub/png/libpng.html) and zlib**
-Install on Debian-based distributions:
 
-```sudo apt-get install libpng-dev zlib1g-dev```
+Install on Debian-based distributions:
+```bash
+sudo apt-get install libpng-dev zlib1g-dev
+```
 <!-- 1. Create an instance of the Perceptron class ```Perceptron perceptron;```
 2. Set the amount of layers ```perceptron.layers = 6;```
 3. Set the useGPU variable to false if you don't have a CUDA-capable NVIDIA GPU ```perceptron.useGPU = false;```
