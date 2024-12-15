@@ -6,6 +6,16 @@
 3. Run the compiled binary manually. The compiled binaries are located in examples/*/build/
 ## How to use
 See the examples in the examples/ directory
+### generic_usage
+This example shows how to use the library in a generic way. Useless for any practical purposes without modifications.
+Doesn't depend on anything special
+### handwritten_numbers
+This is a classic neural networks example. A neural network that recognises handwritten digits.
+
+**This example depends on [libpng](http://www.libpng.org/pub/png/libpng.html) and zlib**
+Install on Debian-based distributions:
+
+```sudo apt-get install libpng-dev zlib1g-dev```
 <!-- 1. Create an instance of the Perceptron class ```Perceptron perceptron;```
 2. Set the amount of layers ```perceptron.layers = 6;```
 3. Set the useGPU variable to false if you don't have a CUDA-capable NVIDIA GPU ```perceptron.useGPU = false;```
