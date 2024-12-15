@@ -93,7 +93,7 @@ int Perceptron::Init(bool confirm = true)
     {
         if (neuronsConfig[i] > maxNeurons) maxNeurons = neuronsConfig[i];
     }
-    std::cout << maxNeurons << std::endl;
+    // std::cout << maxNeurons << std::endl;
     if (confirm)
     {
         double spaceTaken = layers;
@@ -491,7 +491,7 @@ int Perceptron::Free()
 int Perceptron::SaveWeights(std::string fileName)
 {
     std::fstream weightsFile;
-    std::string path = "./weights/"+fileName+".csv";
+    std::string path = "../weights/"+fileName+".csv";
     weightsFile.open(path, std::ios::out);
     weightsFile << layers << ",";
     for (int i = 0; i < layers; i++)
@@ -507,7 +507,7 @@ int Perceptron::SaveWeights(std::string fileName)
                 weightsFile << weights[i*neuronsConfig[i]*(neuronsConfig[i]-1)+j*(neuronsConfig[i]-1)+k] << ",";
             }
         }
-        weightsFile << std::endl;
+        // weightsFile << std::endl;
         std::cout << "Saving the weights..." << std::endl;
         double progress = i*1.0/layers*100;
         std::cout << "Progress: " << progress << "%" << std::endl;
@@ -547,6 +547,7 @@ int Perceptron::LoadWeights(std::string fileName)
             data[index] += input[j][i];
         }
     }
+    input.clear();
     // Debug info
     // for (int i = 0; i < 1000; i++)
     // {
@@ -562,5 +563,10 @@ int Perceptron::LoadWeights(std::string fileName)
     }
     rightAnswer = new double[neuronsConfig[layers-1]];
     Init(false);
+    for (unsigned long i = layers+2; i < data.size()-1; i++)
+    {
+        weights[i] = stod(data[i]);
+    }
+    data.clear();
     return 0;
 }

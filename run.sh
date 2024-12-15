@@ -1,4 +1,4 @@
-./compile.sh
+./compile.sh $1 $2
 cd examples/$1/build
-gdb -ex run ./$2
+./$2
 cd ../../..

@@ -1,4 +1,6 @@
 #include "../../src/SemkiAI.hpp"
+#include <pnglib.hpp>
+using namespace puzniakowski::png;
 
 int main()
 {
@@ -12,10 +14,12 @@ int main()
     // Init CUDA
     perceptron.InitCuda();
     // Set the amount of neurons in each layer
-    for (int i = 0; i < perceptron.layers; i++)
+    perceptron.neuronsConfig[0] = 28*28;
+    for (int i = 1; i < perceptron.layers-1; i++)
     {
-        perceptron.neuronsConfig[i] = 999;
+        perceptron.neuronsConfig[i] = 28*28;
     }
+    perceptron.neuronsConfig[perceptron.layers-1] = 10;
     // Init the right answers array
     perceptron.rightAnswer = new double[perceptron.neuronsConfig[perceptron.layers-1]];
     // Init random
@@ -30,31 +34,47 @@ int main()
     // Init the training info variables
     double initialError = 10;
     double endError = 10;
-    int maxIterations = 7890;
+    int maxIterations = 123;
     int iteration = 0;
     double acceptableError = -1;
     // An error buffer
     double buf = 0;
 
     /* Training */
+    int currentNumber = -1;
+    int8_t r,g,b,a;
+    unsigned int color;
     while (endError > acceptableError && iteration < maxIterations)
     {
         // Print the current iteration number
         std::cout << "Iteration: " << iteration << std::endl;
-        // Set the input data
+        currentNumber = rand() % 10;
+        pngimage_t inputImage;
+        inputImage = read_png_file("../dataset/MNIST/"+std::to_string(currentNumber)+"/"+std::to_string(rand()%10000)+".png");
+
+        int x = 0;
+        int y = 0;
         for (int i = 0; i < perceptron.neuronsConfig[0]; i++)
         {
-            perceptron.neurons[i] = rand() % 1000000 * 1.0 / 1000000;
+            if (x >= 28)
+            {
+                x = 0;
+                y++;
+            }
+            color = inputImage.get(x, y);
+            getRGBAFromColor(color, &r, &g, &b, &a);
+            perceptron.neurons[i] = (uint8_t)r * 1.0 / 255;
+            x++;
         }
         // Set the right answer
         for (int i = 0; i < perceptron.neuronsConfig[perceptron.layers-1]; i++)
         {
-            perceptron.rightAnswer[i] = rand() % 1000000 * 1.0 / 1000000;
+            perceptron.rightAnswer[i] = i == currentNumber ? 1 : 0;
         }
         // Run a training cycle
         buf = perceptron.Train(
             Perceptron::ActivationFunction::Sigmoid,
-            Perceptron::CostFunction::MeanAbsolute, 
+            Perceptron::CostFunction::MeanSquared, 
             Perceptron::LearningAlgorithm::SimulatedAnnealing);
         // Remember the error
         if (iteration == 0) initialError = buf; else endError = buf;
@@ -66,15 +86,7 @@ int main()
     std::cout << "Initial error was " << initialError << std::endl;
     std::cout << "Now the error is " << endError << std::endl;
 
-    // Calculate the amount of RAM needed to run the model
-    double spaceTaken = perceptron.layers;
-    spaceTaken /= 1024;
-    spaceTaken *= perceptron.neuronsConfig[0];
-    spaceTaken /= 1024;
-    spaceTaken *= 8;
-    spaceTaken /= 1024;
-    spaceTaken *= perceptron.neuronsConfig[0]-1;
     // Save the trained model to a .csv file
-    perceptron.SaveWeights("weights"+std::to_string(iteration)+" "+std::to_string(spaceTaken)+"GB");
+    perceptron.SaveWeights("weights");
     return 0;
 }
