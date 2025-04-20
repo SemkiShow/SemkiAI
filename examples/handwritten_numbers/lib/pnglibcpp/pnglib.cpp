@@ -8,7 +8,7 @@ Tadeusz Puźnikowski 2017
  * http://zarb.org/~gc/html/libpng.html
  */
 
-#include <pnglib.hpp>
+#include "pnglib.hpp"
 
 #include <png.h>
 #include <tuple>

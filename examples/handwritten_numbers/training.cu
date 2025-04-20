@@ -1,5 +1,5 @@
-#include "../../src/SemkiAI.hpp"
-#include <pnglib.hpp>
+#include "SemkiAI.hpp"
+#include "pnglib.hpp"
 using namespace puzniakowski::png;
 
 int main()

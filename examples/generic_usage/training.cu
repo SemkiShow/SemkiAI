@@ -1,4 +1,4 @@
-#include "../../src/SemkiAI.hpp"
+#include "SemkiAI.hpp"
 
 int main()
 {
@@ -21,7 +21,7 @@ int main()
     // Init random
     srand(time(0));
     // Init neurons and weights
-    perceptron.Init();
+    perceptron.Init(true);
     // Set the required variables for SimulatedAnnealing
     perceptron.temperature = 5000;
     perceptron.temperatureDecreaseRate = 0.99;

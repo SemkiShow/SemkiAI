@@ -1,6 +1,6 @@
-build
-.vscode
-examples/*/weights/*
-examples/*/build/*
-examples/*/dataset/*
-CMakeLists.txt
+build/
+.vscode/
+examples/*/build/
+examples/*/debug/
+examples/*/dataset/
+examples/*/weights/

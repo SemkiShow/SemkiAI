@@ -1,4 +1,4 @@
-#include "../../src/SemkiAI.hpp"
+#include "SemkiAI.hpp"
 #include <pnglib.hpp>
 using namespace puzniakowski::png;
 
