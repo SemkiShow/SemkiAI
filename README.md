@@ -1,15 +1,23 @@
 # SemkiAI
+
 ## How to compile
+
 0. You must have a CUDA-capable NVIDIA GPU to run this library or set the useGPU variable to false
 1. Install the latest CUDA SDK
-2. Run compile.sh
+2. Run compile_examples.sh
 3. Run the compiled binary manually. The compiled binaries are located in examples/*/build/
+
 ## How to use
+
 See the examples in the examples/ directory
+
 ### generic_usage
+
 This example shows how to use the library in a generic way. Useless for any practical purposes without modifications.
-Doesn't depend on anything special
+Doesn't depend on anything aside from CUDA
+
 ### handwritten_numbers
+
 This is a classic neural networks example. A neural network that recognises handwritten digits.
 
 **This example depends on [libpng](http://www.libpng.org/pub/png/libpng.html) and zlib**
@@ -45,13 +53,20 @@ sudo apt-get install libpng-dev zlib1g-dev
 8. Save your weights to a file. The weights are located in the weights directory ```perceptron.SaveWeights("NameOfTheWeightsFile");``` -->
 
 #### Required variables
+
 | Training function | Required variables |
 | --- | --- |
 | Backpropagation | learningRate |
 | SimulatedAnnealing | temperature, temperatureDecreaseRate |
+
 #### Activation functions
+
 Sigmoid, ReLU, Tanh
+
 #### Cost functions
+
 MeanSquared, MeanAbsolute, Huber, BinaryCrossEntropy, CategoricalCrossEntropy
+
 #### Learning algorithms
+
 Backpropagation, SimulatedAnnealing
