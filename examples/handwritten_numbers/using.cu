@@ -38,10 +38,15 @@ int main()
     // Calculate the output
     perceptron.CalculateNeurons(Perceptron::ActivationFunction::Sigmoid);
     // Output the answer
+    int answer = 0;
     for (int i = 0; i < perceptron.neuronsConfig[perceptron.layers-1]; i++)
     {
+        if (perceptron.neurons[perceptron.maxNeurons * (perceptron.layers - 1) + i] > perceptron.neurons[perceptron.maxNeurons * (perceptron.layers - 1) + answer])
+            answer = i;
         std::cout << perceptron.neurons[perceptron.maxNeurons * (perceptron.layers - 1) + i] << ", ";
     }
     std::cout << std::endl;
+    std::cout << "The input number was " << currentNumber << std::endl;
+    std::cout << "The neural network thinks that the number is " << answer << std::endl;
     return 0;
 }

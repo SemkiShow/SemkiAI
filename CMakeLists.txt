@@ -6,7 +6,12 @@ enable_language(CUDA)
 
 add_library(SemkiAI)
 
-set_target_properties(SemkiAI PROPERTIES CUDA_ARCHITECTURES all)
+set_target_properties(SemkiAI PROPERTIES CUDA_ARCHITECTURES "52;70")
 
 target_include_directories(SemkiAI PUBLIC src/include/)
-target_sources(SemkiAI PRIVATE src/Perceptron.cu)
+target_sources(SemkiAI PRIVATE src/Perceptron.cu src/DatasetParser.cpp)
+
+add_library(DatasetParser)
+
+target_include_directories(DatasetParser PUBLIC src/include)
+target_sources(DatasetParser PRIVATE src/DatasetParser.cpp)

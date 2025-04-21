@@ -1,9 +1,5 @@
 #include "SemkiAI.hpp"
 
-std::random_device dev;
-std::mt19937 rng(dev());
-std::uniform_int_distribution<std::mt19937::result_type> dist1000(0, 1000);
-
 int Perceptron::InitCuda()
 {
     neuronsConfig = new int[layers];
@@ -17,6 +13,10 @@ int Perceptron::InitCuda()
 
 int Perceptron::Init(bool confirm)
 {
+    for (int i = 0; i < layers; i++)
+    {
+        neuronsConfig[i]++;
+    }
     for (int i = 0; i < layers; i++)
     {
         if (neuronsConfig[i] > maxNeurons) maxNeurons = neuronsConfig[i];
@@ -35,6 +35,7 @@ int Perceptron::Init(bool confirm)
         std::cout << "The neural network requires " << (spaceTaken) << " GiB of RAM. Continue? (Enter/Ctrl-C)" << std::endl;
         std::getchar();
     }
+    srand(time(0));
     neurons = new double[layers*maxNeurons];
     if (useGPU)
     {
@@ -44,8 +45,9 @@ int Perceptron::Init(bool confirm)
     {
         for (int j = 0; j < maxNeurons; j++)
         {
-            neurons[i*maxNeurons+j] = 0.213580;
+            neurons[i*maxNeurons+j] = rand() % 1000 * 1.0 / 1000;
         }
+        neurons[i*maxNeurons+(maxNeurons-1)] = 1;
     }
     std::cout << "Neurons were initialized" << std::endl;
 
@@ -60,7 +62,7 @@ int Perceptron::Init(bool confirm)
         {
             for (int k = 0; k < neuronsConfig[i]-1; k++)
             {
-                weights[i*neuronsConfig[i]*(neuronsConfig[i]-1)+j*(neuronsConfig[i]-1)+k] = 0.21345;
+                weights[i*neuronsConfig[i]*(neuronsConfig[i]-1)+j*(neuronsConfig[i]-1)+k] = rand() % 1000 * 1.0 / 1000;
             }
         }
     }
@@ -105,7 +107,7 @@ int Perceptron::CalculateNeurons(ActivationFunction activationFunction)
     {
         if (useGPU)
         {
-            gpuThreads = 256;
+            gpuThreads = 1256;
             gpuBlocks = (neuronsConfig[i] + gpuThreads - 1) / gpuThreads;
             CalculateNeuronsKernel<<<gpuBlocks, gpuThreads>>>(neurons, weights, neuronsConfig, layers, i, maxNeurons);
             cudaDeviceSynchronize();
@@ -121,6 +123,7 @@ int Perceptron::CalculateNeurons(ActivationFunction activationFunction)
                 }
             }
         }
+        neurons[i*maxNeurons+(maxNeurons-1)] = 1;
     }
     for (int i = maxNeurons*(layers-1); i < maxNeurons*layers; i++)
     {
@@ -141,7 +144,7 @@ int Perceptron::CalculateNeurons(ActivationFunction activationFunction)
         }
     }
     
-    std::cout << "Neurons were recalculated" << std::endl;
+    // std::cout << "Neurons were recalculated" << std::endl;
     return 0;
 }
 
@@ -284,8 +287,7 @@ void BackpropagationKernel(double* neurons, double* weights, int* neuronsConfig,
 
     for (int k = index; k < neuronsConfig[i+1]; k+=stride)
     {
-        weights[i*neuronsConfig[i]*(neuronsConfig[i]-1)+j*(neuronsConfig[i]-1)+k] += 
-        learningRate*neurons[maxNeurons*i+j]*error[k];
+        weights[i*neuronsConfig[i]*(neuronsConfig[i]-1)+j*(neuronsConfig[i]-1)+k] += learningRate*neurons[maxNeurons*i+j]*error[k];
     }
 }
 
@@ -331,8 +333,7 @@ int Perceptron::Backpropagation(CostFunction costFunction)
             {
                 for (int k = 0; k < neuronsConfig[i+1]; k++)
                 {
-                    weights[i*neuronsConfig[i]*(neuronsConfig[i]-1)+j*(neuronsConfig[i]-1)+k] += 
-                    learningRate*neurons[maxNeurons*i+j]*error[k];
+                    weights[i*neuronsConfig[i]*(neuronsConfig[i]-1)+j*(neuronsConfig[i]-1)+k] += learningRate*neurons[maxNeurons*i+j]*error[k];
                 }
             }
         }
@@ -354,7 +355,7 @@ int Perceptron::SimulatedAnnealing(ActivationFunction activationFunction, CostFu
     Perceptron candidate = *this;
     for (int i = 0; i < temperature; i++)
     {
-        candidate.weights[(int)(dist1000(rng) * (layers*maxNeurons*(maxNeurons-1) / 1000))] = dist1000(rng) * 1.0 / 1000;
+        candidate.weights[(int)(rand() % 1000 * (layers*maxNeurons*(maxNeurons-1) / 1000))] = rand() % 1000 * 1.0 / 1000;
     }
     candidate.CalculateNeurons(activationFunction);
     
@@ -368,14 +369,14 @@ int Perceptron::SimulatedAnnealing(ActivationFunction activationFunction, CostFu
     else
     {
         double deltaCost = cost - candidate.cost;
-        if ((dist1000(rng) * 1.0 / 1000) > exp(deltaCost / temperature))
+        if ((rand() % 1000 * 1.0 / 1000) > exp(deltaCost / temperature))
         {
             weights = candidate.weights;
         }
     }
     
     temperature *= temperatureDecreaseRate;
-    std::cout << "Temperature: " << temperature << std::endl;
+    // std::cout << "Temperature: " << temperature << std::endl;
     return 0;
 }
 
@@ -395,7 +396,7 @@ double Perceptron::Train(ActivationFunction activationFunction, CostFunction cos
             break;
     }
     CalculateCost(costFunction, layers-1);
-    std::cout << "Error: " << cost << std::endl;
+    // std::cout << "Error: " << cost << std::endl;
     return cost;
 }
 
@@ -419,7 +420,7 @@ int Perceptron::Free()
 int Perceptron::SaveWeights(std::string fileName)
 {
     std::fstream weightsFile;
-    std::string path = "../weights/"+fileName+".csv";
+    std::string path = "weights/" + fileName;
     weightsFile.open(path, std::ios::out);
     weightsFile << layers << ",";
     for (int i = 0; i < layers; i++)
@@ -436,10 +437,9 @@ int Perceptron::SaveWeights(std::string fileName)
             }
         }
         // weightsFile << std::endl;
-        std::cout << "Saving the weights..." << std::endl;
-        double progress = i*1.0/layers*100;
-        std::cout << "Progress: " << progress << "%" << std::endl;
+        std::cout << '\r' << "Saving the weights...    " << i * 1000 / layers / 10.0 << "%";
     }
+    std::cout << '\n';
     Free();
     weightsFile.close();
     return 0;
@@ -448,7 +448,7 @@ int Perceptron::SaveWeights(std::string fileName)
 int Perceptron::LoadWeights(std::string fileName)
 {
     std::fstream weightsFile;
-    std::string path = "../weights/"+fileName+".csv";
+    std::string path = "weights/"+fileName+".csv";
     weightsFile.open(path, std::ios::in);
     // Load the data into a temporary string
     std::string buf;

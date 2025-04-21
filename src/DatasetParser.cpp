@@ -1,6 +1,6 @@
-#include "DatasetParser.h"
+#include "DatasetParser.hpp"
 
-vector<string> files;
+std::vector<std::string> files;
 
 int ListFiles(char* path)
 {
@@ -8,8 +8,8 @@ int ListFiles(char* path)
     if (directory == NULL) {return 1;}
     struct dirent* file;
     file = readdir(directory);
-    // cout << "Reading files in:";
-    // cout << path << endl;
+    // std::cout << "Reading files in:";
+    // std::cout << path << std::endl;
     while (file != NULL)
     {
         if (strcmp(file->d_name, ".") != 0 && strcmp(file->d_name, "..") != 0 && file->d_type == DT_REG)
@@ -18,7 +18,7 @@ int ListFiles(char* path)
             strcat(newPath, path);
             strcat(newPath, "/");
             strcat(newPath, file->d_name);
-            // cout << newPath << endl;
+            // std::cout << newPath << std::endl;
             files.push_back(newPath);
         }
         if (strcmp(file->d_name, ".") != 0 && strcmp(file->d_name, "..") != 0 && file->d_type == DT_DIR)
@@ -36,34 +36,33 @@ int ListFiles(char* path)
     return 0;
 }
 
-vector<string> Split(string input, char delimiter)
+std::vector<std::string> Split(std::string input, char delimiter)
 {
-    string tmp;
-    vector<string> output;
-    for (int i = 0; i < input.length(); i++)
+    std::vector<std::string> output;
+    output.push_back("");
+    int index = 0;
+    for (int i = 0; i < input.size(); i++)
     {
         if (input[i] == delimiter)
         {
-            output.push_back(tmp);
-            tmp = "";
+            index++;
+            output.push_back("");
+            continue;
         }
-        else
-        {
-            tmp += input[i];
-        }
+        output[index] += input[i];
     }
     return output;
 }
 
-int ParseHTML(char* path, char* outputDirectory)
+void ParseHTML(char* path, char* outputDirectory)
 {
     ListFiles(path);
-    cout << "There are a total of ";
-    cout << files.size();
-    cout << " files in the given path" << endl;
-    cout << "Show all of them?(y/N) ";
-    string answer;
-    getline(cin, answer);
+    std::cout << "There are a total of ";
+    std::cout << files.size();
+    std::cout << " files in the given path" << std::endl;
+    std::cout << "Show all of them?(y/N) ";
+    std::string answer;
+    std::getline(std::cin, answer);
     for (auto& tmp : answer) {
         tmp = tolower(tmp);
     }
@@ -71,27 +70,27 @@ int ParseHTML(char* path, char* outputDirectory)
     {
         for (int i = 0; i < files.size(); i++)
         {
-            cout << files[i] << endl;
+            std::cout << files[i] << std::endl;
         }
     }
 
-    fstream input;
-    fstream output;
-    string file;
-    string fileContent;
+    std::fstream input;
+    std::fstream output;
+    std::string file;
+    std::string fileContent;
     char writePath[1024] = {0};
-    vector<string> tmp;
+    std::vector<std::string> tmp;
     for (int i = 0; i < files.size(); i++)
     {
         input.open(files[i]);
-        while (getline(input, file))
+        while (std::getline(input, file))
         {
-            // cout << file << endl;
+            // std::cout << file << std::endl;
             fileContent += file;
             fileContent += "\n";
         }
-        // cout << "------------------" << endl;
-        // cout << fileContent << endl;
+        // std::cout << "------------------" << std::endl;
+        // std::cout << fileContent << std::endl;
         input.close();
 
         tmp = Split(files[i], '/');
@@ -99,14 +98,28 @@ int ParseHTML(char* path, char* outputDirectory)
         strcat(writePath, "/");
         // strcat(writePath, &tmp[tmp.size()]);
         output.open(writePath);
-        cout << tmp[tmp.size()] << endl;
+        std::cout << tmp[tmp.size()] << std::endl;
 
         file = "";
         fileContent = "";
         memset(writePath, 0, sizeof(writePath));
         output.close();
-        tmp = vector<string>();
+        tmp = std::vector<std::string>();
     }
-    
-    return 0;
+}
+
+std::vector<std::vector<std::string>> ParseCSV(std::string path)
+{
+    std::fstream datasetFile;
+    datasetFile.open(path, std::ios::in);
+    std::string buf = "";
+    std::vector<std::string> datasetContents;
+    while (std::getline(datasetFile, buf))
+        datasetContents.push_back(buf);
+
+    std::vector<std::vector<std::string>> output;
+    for (int i = 0; i < datasetContents.size(); i++)
+        output.push_back(Split(datasetContents[i], ','));
+
+    return output;
 }

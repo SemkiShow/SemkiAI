@@ -20,37 +20,18 @@ Doesn't depend on anything aside from CUDA
 
 This is a classic neural networks example. A neural network that recognises handwritten digits.
 
-**This example depends on [libpng](http://www.libpng.org/pub/png/libpng.html) and zlib**
+### utils/png_to_csv.cpp
+
+This is a utility program for converting png datasets to csv. It can be useful for the handwritten_numbers example to convert the MNIST dataset to csv.
+
+A huge thanks to [Tadeusz Puźniakowski](https://github.com/pantadeusz) for [pnglibcpp](https://github.com/pantadeusz/pnglibcpp)
+
+**This program depends on [libpng](http://www.libpng.org/pub/png/libpng.html) and zlib**
 
 Install on Debian-based distributions:
 ```bash
 sudo apt-get install libpng-dev zlib1g-dev
 ```
-<!-- 1. Create an instance of the Perceptron class ```Perceptron perceptron;```
-2. Set the amount of layers ```perceptron.layers = 6;```
-3. Set the useGPU variable to false if you don't have a CUDA-capable NVIDIA GPU ```perceptron.useGPU = false;```
-4. Initialize CUDA ```perceptron.InitCuda();```
-5. Initialize neuronsConfig.
-   ```c++
-   for (int i = 0; i < perceptron.layers; i++)
-   {
-      perceptron.neuronsConfig[i] = 123;
-   }
-   ```
-6. Initialize the perceptron ```perceptron.Init();```
-7. Run a training cycle
-   1. Set the right answer 
-   ```c++
-   double rightAnswer[perceptron.neuronsConfig[perceptron.layers-1]];
-   perceptron.rightAnswer = rightAnswer;
-   for (int i = 0; i < perceptron.neuronsConfig[perceptron.layers-1]; i++)
-   {
-      perceptron.rightAnswer[i] = 0.27158953;
-   }
-   ```
-   2. Set the [required variables](#required-variables) for your chosen training function. Example for Backpropagation: ```perceptron.learningRate = 1.0;```
-   3. Call the Train function (See also: [Activation functions](#activation-functions), [Cost functions](#cost-functions), [Learning algorithms](#learning-algorithms)) ```perceptron.Train(ActivationFunction, CostFunction, LearningAlgorithm);```
-8. Save your weights to a file. The weights are located in the weights directory ```perceptron.SaveWeights("NameOfTheWeightsFile");``` -->
 
 #### Required variables
 

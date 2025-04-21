@@ -21,7 +21,7 @@ int main()
     // Init random
     srand(time(0));
     // Init neurons and weights
-    perceptron.Init(true);
+    perceptron.Init();
     // Set the required variables for SimulatedAnnealing
     perceptron.temperature = 5000;
     perceptron.temperatureDecreaseRate = 0.99;
@@ -30,7 +30,7 @@ int main()
     // Init the training info variables
     double initialError = 10;
     double endError = 10;
-    int maxIterations = 7890;
+    int maxIterations = 123;
     int iteration = 0;
     double acceptableError = -1;
     // An error buffer
@@ -40,7 +40,7 @@ int main()
     while (endError > acceptableError && iteration < maxIterations)
     {
         // Print the current iteration number
-        std::cout << "Iteration: " << iteration << std::endl;
+        std::cout << "\r" << "Iteration: " << iteration;
         // Set the input data
         for (int i = 0; i < perceptron.neuronsConfig[0]; i++)
         {
@@ -55,7 +55,7 @@ int main()
         buf = perceptron.Train(
             Perceptron::ActivationFunction::Sigmoid,
             Perceptron::CostFunction::MeanAbsolute, 
-            Perceptron::LearningAlgorithm::SimulatedAnnealing);
+            Perceptron::LearningAlgorithm::Backpropagation);
         // Remember the error
         if (iteration == 0) initialError = buf; else endError = buf;
         // Increase the iterations counter
@@ -75,6 +75,6 @@ int main()
     spaceTaken /= 1024;
     spaceTaken *= perceptron.neuronsConfig[0]-1;
     // Save the trained model to a .csv file
-    perceptron.SaveWeights("weights"+std::to_string(iteration)+" "+std::to_string(spaceTaken)+"GB");
+    perceptron.SaveWeights("weights"+std::to_string(iteration)+" "+std::to_string(spaceTaken)+"GB.csv");
     return 0;
 }

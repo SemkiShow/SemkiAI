@@ -1,6 +1,5 @@
 #include "SemkiAI.hpp"
-#include "pnglib.hpp"
-using namespace puzniakowski::png;
+#include "DatasetParser.hpp"
 
 int main()
 {
@@ -30,13 +29,13 @@ int main()
     perceptron.temperature = 5000;
     perceptron.temperatureDecreaseRate = 0.99;
     // Set the learning rate
-    perceptron.learningRate = 1.0;
+    perceptron.learningRate = 0.1;
     // Init the training info variables
     double initialError = 10;
     double endError = 10;
-    int maxIterations = 123;
+    int maxIterations = 1234;
     int iteration = 0;
-    double acceptableError = -1;
+    double acceptableError = 0.01;
     // An error buffer
     double buf = 0;
 
@@ -47,10 +46,10 @@ int main()
     while (endError > acceptableError && iteration < maxIterations)
     {
         // Print the current iteration number
-        std::cout << "Iteration: " << iteration << std::endl;
+        std::cout << '\r' << "Iteration: " << iteration << ", Current error: " << endError;
         currentNumber = rand() % 10;
         pngimage_t inputImage;
-        inputImage = read_png_file("../dataset/MNIST/"+std::to_string(currentNumber)+"/"+std::to_string(rand()%10000)+".png");
+        inputImage = read_png_file("dataset/MNIST/"+std::to_string(currentNumber)+"/"+std::to_string(rand()%10000)+".png");
 
         int x = 0;
         int y = 0;
@@ -63,7 +62,7 @@ int main()
             }
             color = inputImage.get(x, y);
             getRGBAFromColor(color, &r, &g, &b, &a);
-            perceptron.neurons[i] = (uint8_t)r * 1.0 / 255;
+            perceptron.neurons[i] = (uint8_t)a * 1.0 / 255;
             x++;
         }
         // Set the right answer
@@ -73,9 +72,9 @@ int main()
         }
         // Run a training cycle
         buf = perceptron.Train(
-            Perceptron::ActivationFunction::Sigmoid,
+            Perceptron::ActivationFunction::ReLU,
             Perceptron::CostFunction::MeanSquared, 
-            Perceptron::LearningAlgorithm::SimulatedAnnealing);
+            Perceptron::LearningAlgorithm::Backpropagation);
         // Remember the error
         if (iteration == 0) initialError = buf; else endError = buf;
         // Increase the iterations counter
@@ -87,6 +86,6 @@ int main()
     std::cout << "Now the error is " << endError << std::endl;
 
     // Save the trained model to a .csv file
-    perceptron.SaveWeights("weights");
+    perceptron.SaveWeights("weights.csv");
     return 0;
 }

@@ -4,3 +4,4 @@ examples/*/build/
 examples/*/debug/
 examples/*/dataset/
 examples/*/weights/
+utils/output.csv
