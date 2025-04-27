@@ -14,7 +14,6 @@ See the examples in the examples/ directory
 ### generic_usage
 
 This example shows how to use the library in a generic way. Useless for any practical purposes without modifications.
-Doesn't depend on anything aside from CUDA
 
 ### handwritten_numbers
 
@@ -33,21 +32,23 @@ Install on Debian-based distributions:
 sudo apt-get install libpng-dev zlib1g-dev
 ```
 
-#### Required variables
+## Perceptron
+
+### Required variables
 
 | Training function | Required variables |
 | --- | --- |
 | Backpropagation | learningRate |
 | SimulatedAnnealing | temperature, temperatureDecreaseRate |
 
-#### Activation functions
+### Activation functions
 
 Sigmoid, ReLU, Tanh
 
-#### Cost functions
+### Cost functions
 
 MeanSquared, MeanAbsolute, Huber, BinaryCrossEntropy, CategoricalCrossEntropy
 
-#### Learning algorithms
+### Learning algorithms
 
 Backpropagation, SimulatedAnnealing
