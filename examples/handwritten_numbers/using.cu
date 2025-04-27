@@ -1,6 +1,5 @@
 #include "SemkiAI.hpp"
-#include <pnglib.hpp>
-using namespace puzniakowski::png;
+#include "DatasetParser.hpp"
 
 int main()
 {
@@ -10,32 +9,22 @@ int main()
     // Use the GPU
     perceptron.useGPU = true;
     // Load the saved weights
-    std::cout << "Loading weights..." << std::endl;
-    perceptron.LoadWeights("weights");
+    std::cout << "Loading weights...\n";
+    perceptron.LoadWeights("weights.csv");
 
     /* Using the loaded data */
     // Fill in the input
+    std::cout << "Loading the input data...\n";
     srand(time(0));
-    int currentNumber = -1;
-    int8_t r,g,b,a;
-    unsigned int color;
-    int x, y = 0;
-    currentNumber = rand() % 10;
-    pngimage_t inputImage;
-    inputImage = read_png_file("../dataset/MNIST/"+std::to_string(currentNumber)+"/"+std::to_string(rand()%10000)+".png");
-    for (int i = 0; i < perceptron.neuronsConfig[0]; i++)
+    std::vector<std::vector<std::string>> dataset;
+    dataset = ParseCSV("dataset/mnist_test.csv");
+    int currentDatasetIndex = rand() % dataset.size();
+    for (int i = 0; i < perceptron.neuronsConfig[0]-1; i++)
     {
-        if (x > 28)
-        {
-            x = 0;
-            y++;
-        }
-        color = inputImage.get(x, y);
-        getRGBAFromColor(color, &r, &g, &b, &a);
-        perceptron.neurons[i] = (uint8_t)r * 1.0 / 255;
+        perceptron.neurons[i] = stoi(dataset[currentDatasetIndex][i+1]) / 255.0;
     }
-    std::cout << "Input data was loaded" << std::endl;
     // Calculate the output
+    std::cout << "Calculating the output...\n";
     perceptron.CalculateNeurons(Perceptron::ActivationFunction::Sigmoid);
     // Output the answer
     int answer = 0;
@@ -46,7 +35,7 @@ int main()
         std::cout << perceptron.neurons[perceptron.maxNeurons * (perceptron.layers - 1) + i] << ", ";
     }
     std::cout << std::endl;
-    std::cout << "The input number was " << currentNumber << std::endl;
+    std::cout << "The input number was " << dataset[currentDatasetIndex][0] << std::endl;
     std::cout << "The neural network thinks that the number is " << answer << std::endl;
     return 0;
 }

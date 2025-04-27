@@ -16,7 +16,7 @@ int main()
     perceptron.neuronsConfig[0] = 28*28;
     for (int i = 1; i < perceptron.layers-1; i++)
     {
-        perceptron.neuronsConfig[i] = 28*28;
+        perceptron.neuronsConfig[i] = 128;
     }
     perceptron.neuronsConfig[perceptron.layers-1] = 10;
     // Init the right answers array
@@ -33,42 +33,33 @@ int main()
     // Init the training info variables
     double initialError = 10;
     double endError = 10;
-    int maxIterations = 1234;
+    int maxIterations = 123456;
     int iteration = 0;
     double acceptableError = 0.01;
     // An error buffer
     double buf = 0;
+    // Load the dataset
+    std::cout << "Loading the dataset...\n";
+    int currentDatasetIndex = -1;
+    std::vector<std::vector<std::string>> dataset;
+    dataset = ParseCSV("dataset/mnist.csv");
 
     /* Training */
-    int currentNumber = -1;
-    int8_t r,g,b,a;
-    unsigned int color;
+    std::cout << "Training...\n";
     while (endError > acceptableError && iteration < maxIterations)
     {
         // Print the current iteration number
-        std::cout << '\r' << "Iteration: " << iteration << ", Current error: " << endError;
-        currentNumber = rand() % 10;
-        pngimage_t inputImage;
-        inputImage = read_png_file("dataset/MNIST/"+std::to_string(currentNumber)+"/"+std::to_string(rand()%10000)+".png");
-
-        int x = 0;
-        int y = 0;
-        for (int i = 0; i < perceptron.neuronsConfig[0]; i++)
+        std::cout << '\r' << "Iteration: " << iteration << ", Current error: " << endError << std::flush;
+        // Fill in the input
+        currentDatasetIndex = rand() % dataset.size();
+        for (int i = 0; i < perceptron.neuronsConfig[0]-1; i++)
         {
-            if (x >= 28)
-            {
-                x = 0;
-                y++;
-            }
-            color = inputImage.get(x, y);
-            getRGBAFromColor(color, &r, &g, &b, &a);
-            perceptron.neurons[i] = (uint8_t)a * 1.0 / 255;
-            x++;
+            perceptron.neurons[i] = stoi(dataset[currentDatasetIndex][i+1]) / 255.0;
         }
         // Set the right answer
         for (int i = 0; i < perceptron.neuronsConfig[perceptron.layers-1]; i++)
         {
-            perceptron.rightAnswer[i] = i == currentNumber ? 1 : 0;
+            perceptron.rightAnswer[i] = i == stoi(dataset[currentDatasetIndex][0]) ? 1 : 0;
         }
         // Run a training cycle
         buf = perceptron.Train(
@@ -81,9 +72,9 @@ int main()
         iteration++;
     }
     // Print the error stats
-    std::cout << std::endl;
-    std::cout << "Initial error was " << initialError << std::endl;
-    std::cout << "Now the error is " << endError << std::endl;
+    std::cout << '\n';
+    std::cout << "Initial error was " << initialError << '\n';
+    std::cout << "Now the error is " << endError << '\n';
 
     // Save the trained model to a .csv file
     perceptron.SaveWeights("weights.csv");

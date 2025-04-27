@@ -12,4 +12,4 @@ target_link_libraries(training PRIVATE SemkiAI DatasetParser)
 
 add_executable(using using.cu)
 set_target_properties(using PROPERTIES CUDA_ARCHITECTURES "52;70")
-target_link_libraries(using PRIVATE SemkiAI)
+target_link_libraries(using PRIVATE SemkiAI DatasetParser)

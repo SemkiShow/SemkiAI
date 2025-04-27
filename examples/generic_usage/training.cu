@@ -37,12 +37,13 @@ int main()
     double buf = 0;
 
     /* Training */
+    std::cout << "Training...\n";
     while (endError > acceptableError && iteration < maxIterations)
     {
         // Print the current iteration number
         std::cout << "\r" << "Iteration: " << iteration;
         // Set the input data
-        for (int i = 0; i < perceptron.neuronsConfig[0]; i++)
+        for (int i = 0; i < perceptron.neuronsConfig[0]-1; i++)
         {
             perceptron.neurons[i] = rand() % 1000000 * 1.0 / 1000000;
         }
@@ -62,19 +63,11 @@ int main()
         iteration++;
     }
     // Print the error stats
-    std::cout << std::endl;
-    std::cout << "Initial error was " << initialError << std::endl;
-    std::cout << "Now the error is " << endError << std::endl;
+    std::cout << '\n';
+    std::cout << "Initial error was " << initialError << '\n';
+    std::cout << "Now the error is " << endError << '\n';
 
-    // Calculate the amount of RAM needed to run the model
-    double spaceTaken = perceptron.layers;
-    spaceTaken /= 1024;
-    spaceTaken *= perceptron.neuronsConfig[0];
-    spaceTaken /= 1024;
-    spaceTaken *= 8;
-    spaceTaken /= 1024;
-    spaceTaken *= perceptron.neuronsConfig[0]-1;
     // Save the trained model to a .csv file
-    perceptron.SaveWeights("weights"+std::to_string(iteration)+" "+std::to_string(spaceTaken)+"GB.csv");
+    perceptron.SaveWeights("weights.csv");
     return 0;
 }

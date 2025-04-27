@@ -47,7 +47,7 @@ class Perceptron
         double temperature = -1;
         double temperatureDecreaseRate = -1;
         int InitCuda();
-        int Init(bool confirm = true);
+        int Init(bool confirm = true, bool randomize = true);
 
         double Sigmoid(double input);
         double ReLU(double input);
@@ -67,7 +67,5 @@ class Perceptron
         
         int SaveWeights(std::string fileName);
         int LoadWeights(std::string fileName);
-        // int TrainScore(int score, CostFunction costFunction);
-        // int TrainGenerations(int generations, CostFunction costFunction);
         int Free();
 };
