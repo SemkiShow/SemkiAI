@@ -8,18 +8,20 @@ int ListFiles(std::string path)
  
     // Looping until all the items of the directory are
     // exhausted
-    for (const auto& entry : fs::directory_iterator(path)) {
+    for (const auto& entry : std::filesystem::directory_iterator(path)) {
  
         // Converting the path to const char * in the
         // subsequent lines
         std::filesystem::path outfilename = entry.path();
         std::string outfilename_str = outfilename.string();
-        const char* path_char = outfilename_str.c_str();
+        const char* outfilename_char = outfilename_str.c_str();
  
         // Testing whether the path points to a
         // non-directory or not If it does, displays path
-        if (stat(path_char, &sb) == 0 && !(sb.st_mode & S_IFDIR))
-            files.push_back(std::to_string(path_char));
+        if (stat(outfilename_char, &sb) == 0 && !(sb.st_mode & S_IFDIR))
+            files.push_back(outfilename_str);
+        else
+            ListFiles(outfilename_str);
     }
     return 0;
 }

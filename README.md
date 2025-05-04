@@ -19,7 +19,7 @@ This example shows how to use the library in a generic way. Useless for any prac
 
 This is a classic neural networks example. A neural network that recognises handwritten digits.
 
-### utils/png_to_csv.cpp
+### utils/png_to_csv/png_to_csv.cpp
 
 This is a utility program for converting png datasets to csv. It can be useful for the handwritten_numbers example to convert the MNIST dataset to csv.
 
@@ -31,6 +31,10 @@ Install on Debian-based distributions:
 ```bash
 sudo apt-get install libpng-dev zlib1g-dev
 ```
+
+### utils/DatasetParser
+
+This is a library for parsing datasets. Currently supports parsing CSV files.
 
 ## Perceptron
 
