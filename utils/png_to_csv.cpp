@@ -1,10 +1,11 @@
 #include "pnglib.hpp"
 #include <iostream>
 #include <fstream>
-#include <string.h>
-#include <dirent.h>
+#include <filesystem>
+#include <sys/stat.h>
 #include <vector>
 #include <cstdint>
+#include <string>
 using namespace puzniakowski::png;
 
 std::vector<std::string> files;
@@ -27,47 +28,36 @@ std::vector<std::string> Split(std::string input, char delimiter)
     return output;
 }
 
-int ListFiles(const char* path)
+int ListFiles(std::string path)
 {
-    DIR* directory = opendir(path);
-    if (directory == NULL) {return 1;}
-    struct dirent* file;
-    file = readdir(directory);
-    // std::cout << "Reading files in:";
-    // std::cout << path << std::endl;
-    while (file != NULL)
-    {
-        if (strcmp(file->d_name, ".") != 0 && strcmp(file->d_name, "..") != 0 && file->d_type == DT_REG)
-        {
-            char newPath[1024] = {0};
-            strcat(newPath, path);
-            strcat(newPath, "/");
-            strcat(newPath, file->d_name);
-            // std::cout << newPath << std::endl;
-            files.push_back(newPath);
-        }
-        if (strcmp(file->d_name, ".") != 0 && strcmp(file->d_name, "..") != 0 && file->d_type == DT_DIR)
-        {
-            char newPath[256] = {0};
-            strcat(newPath, path);
-            strcat(newPath, "/");
-            strcat(newPath, file->d_name);
-            ListFiles(newPath);
-        }
-        file = readdir(directory);
+    struct stat sb;
+ 
+    // Looping until all the items of the directory are
+    // exhausted
+    for (const auto& entry : std::filesystem::directory_iterator(path)) {
+ 
+        // Converting the path to const char * in the
+        // subsequent lines
+        std::filesystem::path outfilename = entry.path();
+        std::string outfilename_str = outfilename.string();
+        const char* outfilename_char = outfilename_str.c_str();
+ 
+        // Testing whether the path points to a
+        // non-directory or not If it does, displays path
+        if (stat(outfilename_char, &sb) == 0 && !(sb.st_mode & S_IFDIR))
+            files.push_back(outfilename_str);
+        else
+            ListFiles(outfilename_str);
     }
-
-    closedir(directory);
     return 0;
 }
-
 int main()
 {
     std::cout << "Input the source path:\n";
     std::string source = "";
     std::getline(std::cin, source);
 
-    ListFiles(source.c_str());
+    ListFiles(source);
 
     std::fstream output;
     output.open("output.csv", std::ios::out);
