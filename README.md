@@ -4,8 +4,9 @@
 
 0. You must have a CUDA-capable NVIDIA GPU to run this library or set the useGPU variable to false
 1. Install the latest CUDA SDK
-2. Run compile_examples.sh
-3. Run the compiled binary manually. The compiled binaries are located in examples/*/build/
+2. Download the latest release. **The main branch is not stable!**
+3. Run compile_examples.sh
+4. Run the compiled binary manually. The compiled binaries are located in examples/*/build/
 
 ## How to use
 
