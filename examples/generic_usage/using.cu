@@ -23,10 +23,10 @@ int main()
     std::cout << "Calculating the output...\n";
     perceptron.CalculateNeurons(Perceptron::ActivationFunction::Sigmoid);
     // Output the answer
-    for (int i = 0; i < perceptron.neuronsConfig[perceptron.layers-1]; i++)
+    for (int i = 0; i < perceptron.neuronsConfig[perceptron.layers-1]-1; i++)
     {
-        std::cout << perceptron.neurons[perceptron.maxNeurons * (perceptron.layers - 1) + i] << ", ";
+        std::cout << perceptron.neurons[perceptron.neuronsIndexes[perceptron.layers-1] + i] << ", ";
     }
-    std::cout << std::endl;
+    std::cout << "\n";
     return 0;
 }

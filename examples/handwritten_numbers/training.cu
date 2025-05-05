@@ -42,7 +42,7 @@ int main()
     std::cout << "Loading the dataset...\n";
     int currentDatasetIndex = -1;
     std::vector<std::vector<std::string>> dataset;
-    dataset = ParseCSV("dataset/mnist.csv");
+    ParseCSV("dataset/mnist.csv", &dataset);
 
     /* Training */
     std::cout << "Training...\n";

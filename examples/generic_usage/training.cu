@@ -13,9 +13,7 @@ int main()
     perceptron.InitCuda();
     // Set the amount of neurons in each layer
     for (int i = 0; i < perceptron.layers; i++)
-    {
         perceptron.neuronsConfig[i] = 999;
-    }
     // Init the right answers array
     perceptron.rightAnswer = new double[perceptron.neuronsConfig[perceptron.layers-1]];
     // Init random
@@ -41,7 +39,7 @@ int main()
     while (endError > acceptableError && iteration < maxIterations)
     {
         // Print the current iteration number
-        std::cout << "\r" << "Iteration: " << iteration;
+        std::cout << "\r" << "Iteration: " << iteration << std::flush;
         // Set the input data
         for (int i = 0; i < perceptron.neuronsConfig[0]-1; i++)
         {

@@ -1,3 +1,5 @@
+#include "SemkiAI.hpp"
+
 double Perceptron::Sigmoid(double input)
 {
     return 1/(1+exp(-input));

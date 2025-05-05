@@ -4,6 +4,7 @@
 #include <cmath>
 #include <vector>
 #include <fstream>
+#include <filesystem>
 
 class MyException : public std::exception { 
     private: 
@@ -30,15 +31,18 @@ class Perceptron
     public:
         double* neurons;
         double* weights;
-        enum class CostFunction {MeanSquared, MeanAbsolute, Huber, BinaryCrossEntropy, CategoricalCrossEntropy};
+        enum class CostFunction {MeanSquared, MeanAbsolute, Huber, BinaryCrossEntropy};
         enum class ActivationFunction {Sigmoid, ReLU, Tanh};
         enum class LearningAlgorithm {Backpropagation, SimulatedAnnealing};
         bool useGPU = true;
-        int gpuThreads;
+        int gpuThreads = (int)pow(2, 10);
         int gpuBlocks;
         int layers;
         int* neuronsConfig;
-        int maxNeurons = 0;
+        // Usage: neurons[neuronsIndexes[layer] + neuronIndex]
+        int* neuronsIndexes;
+        // Usage: weights[weightsIndexes[neuronsIndexes[sourceNeuronLayer] + sourceNeuronIndex] + destinationNeuronIndex]
+        int* weightsIndexes;
         double* rightAnswer;
         double cost = -1;
         double delta = -1;
@@ -46,6 +50,7 @@ class Perceptron
         double learningRate = -1;
         double temperature = -1;
         double temperatureDecreaseRate = -1;
+        double GetRAMRequirements();
         int InitCuda();
         int Init(bool confirm = true, bool randomize = true);
 

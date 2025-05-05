@@ -99,18 +99,12 @@ std::vector<std::string> Split(std::string input, char delimiter)
 //     }
 // }
 
-std::vector<std::vector<std::string>> ParseCSV(std::string path)
+void ParseCSV(std::string path, std::vector<std::vector<std::string>>* dataset)
 {
     std::fstream datasetFile;
     datasetFile.open(path, std::ios::in);
     std::string buf = "";
-    std::vector<std::string> datasetContents;
     while (std::getline(datasetFile, buf))
-        datasetContents.push_back(buf);
-
-    std::vector<std::vector<std::string>> output;
-    for (int i = 0; i < datasetContents.size(); i++)
-        output.push_back(Split(datasetContents[i], ','));
-
-    return output;
+        dataset->push_back(Split(buf, ','));
+    datasetFile.close();
 }

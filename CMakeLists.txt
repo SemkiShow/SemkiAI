@@ -6,7 +6,7 @@ enable_language(CUDA)
 
 add_library(SemkiAI)
 
-set_target_properties(SemkiAI PROPERTIES CUDA_ARCHITECTURES "52;70")
+set_target_properties(SemkiAI PROPERTIES CUDA_ARCHITECTURES "52;61;70")
 
 file(GLOB SemkiAISources src/Perceptron.cu src/Perceptron/*.cu)
 

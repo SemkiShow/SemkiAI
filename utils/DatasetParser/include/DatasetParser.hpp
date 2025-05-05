@@ -5,4 +5,4 @@
 #include <sys/stat.h>
 
 // void ParseHTML(char* path, char* outputDirectory);
-std::vector<std::vector<std::string>> ParseCSV(std::string path);
+void ParseCSV(std::string path, std::vector<std::vector<std::string>>* dataset);
