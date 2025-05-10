@@ -36,6 +36,7 @@ int Perceptron::InitCuda()
         {
             a[i] = 1.0;
             b[i] = 2.0;
+            c[i] = 0.0;
         }
 
         gpuBlocks = (length + gpuThreads - 1) / gpuThreads;
