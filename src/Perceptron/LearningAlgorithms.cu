@@ -61,6 +61,7 @@ int Perceptron::Backpropagation(CostFunction costFunction)
         cudaMallocManaged(&error, neuronsIndexes[layers]*sizeof(double));
         gpuBlocks = (layers + gpuThreads - 1) / gpuThreads;
         CalculateErrorKernel<<<gpuBlocks, gpuThreads>>>(neurons, weights, layers, neuronsConfig, error, neuronsIndexes, weightsIndexes);
+        cudaDeviceSynchronize();
     }
     else
     {
@@ -78,14 +79,11 @@ int Perceptron::Backpropagation(CostFunction costFunction)
             }
         }
     }
-    if (useGPU)
-    {
-        cudaDeviceSynchronize();
-    }
 
     if (useGPU)
     {
         BackpropagationKernel<<<gpuBlocks, gpuThreads>>>(neurons, weights, layers, neuronsConfig, error, learningRate, neuronsIndexes, weightsIndexes);
+        cudaDeviceSynchronize();
     }
     else
     {
@@ -100,10 +98,6 @@ int Perceptron::Backpropagation(CostFunction costFunction)
                 }
             }
         }
-    }
-    if (useGPU)
-    {
-        cudaDeviceSynchronize();
     }
     return 0;
 }

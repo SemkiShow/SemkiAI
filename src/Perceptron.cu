@@ -6,9 +6,46 @@ double Perceptron::GetRAMRequirements()
     return spaceTaken;
 }
 
+__global__
+void CheckCudaKernel(double* a, double* b, double* c, int length)
+{
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    int stride = blockDim.x * gridDim.x;
+    for (int i = index; i < 1000000; i += stride)
+    {
+        c[i] = a[i] + b[i];
+    }
+}
+
 int Perceptron::InitCuda()
 {
     std::cout << "Initialising CUDA...\n";
+    // Checking if CUDA is available
+    if (useGPU)
+    {
+        int length = 1000000;
+        double* a = new double[length];
+        double* b = new double[length];
+        double* c = new double[length];
+
+        cudaMallocManaged(&a, length * sizeof(double));
+        cudaMallocManaged(&b, length * sizeof(double));
+        cudaMallocManaged(&c, length * sizeof(double));
+
+        for (int i = 0; i < length; i++)
+        {
+            a[i] = 1.0;
+            b[i] = 2.0;
+        }
+
+        gpuBlocks = (length + gpuThreads - 1) / gpuThreads;
+        CheckCudaKernel<<<gpuBlocks, gpuThreads>>>(a, b, c, length);
+        cudaDeviceSynchronize();
+
+        if (c[0] != 3.0) throw MyException("CUDA is not available!");
+    }
+
+    // Initialising neuronsConfig
     neuronsConfig = new int[layers];
     if (useGPU)
         cudaMallocManaged(&neuronsConfig, layers*sizeof(int));

@@ -33,7 +33,7 @@ int main()
     // Init the training info variables
     double initialError = 10;
     double endError = 10;
-    int maxIterations = 123456;
+    int maxIterations = 123;
     int iteration = 0;
     double acceptableError = 0.01;
     // An error buffer
