@@ -11,7 +11,8 @@ void CheckCudaKernel(double* a, double* b, double* c, int length)
 {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     int stride = blockDim.x * gridDim.x;
-    for (int i = index; i < 1000000; i += stride)
+    
+    for (int i = index; i < length; i += stride)
     {
         c[i] = a[i] + b[i];
     }
@@ -23,7 +24,7 @@ int Perceptron::InitCuda()
     // Checking if CUDA is available
     if (useGPU)
     {
-        int length = 1000000;
+        int length = 1000;
         double* a = new double[length];
         double* b = new double[length];
         double* c = new double[length];
