@@ -42,7 +42,7 @@ int Perceptron::InitCuda()
         CheckCudaKernel<<<gpuBlocks, gpuThreads>>>(a, b, c, length);
         cudaDeviceSynchronize();
 
-        if (c[0] != 3.0) throw MyException("CUDA is not available!");
+        if (c[0] != 3.0) throw MyException("CUDA is not available! You must set useGPU to false!");
     }
 
     // Initialising neuronsConfig
