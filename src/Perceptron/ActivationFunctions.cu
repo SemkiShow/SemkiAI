@@ -7,8 +7,7 @@ double Perceptron::Sigmoid(double input)
 
 double Perceptron::ReLU(double input)
 {
-    if (input > 0){return input;}
-    else {return 0;}
+    return std::min(std::max(0.0, input), 10.0);
 }
 
 double Perceptron::Tanh(double input)

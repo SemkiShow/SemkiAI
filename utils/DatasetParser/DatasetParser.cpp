@@ -106,5 +106,6 @@ void ParseCSV(std::string path, std::vector<std::vector<std::string>>* dataset)
     std::string buf = "";
     while (std::getline(datasetFile, buf))
         dataset->push_back(Split(buf, ','));
+    buf = "";
     datasetFile.close();
 }
