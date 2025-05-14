@@ -6,7 +6,11 @@
 1. Install the latest CUDA SDK
 2. Download the latest release. **The main branch is not stable!**
 3. Run compile_examples.sh
-4. Run the compiled binary manually. The compiled binaries are located in examples/*/build/
+4. Run the compiled binary manually
+```bash
+cd examples/[insert_example_name_here]
+./build/[insert_executable_name_here]
+```
 
 ## How to use
 
