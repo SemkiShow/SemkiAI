@@ -9,6 +9,8 @@
 4. Run the compiled binary manually
 ```bash
 cd examples/[insert_example_name_here]
+chmod +x compile.sh
+./compile.sh
 ./build/[insert_executable_name_here]
 ```
 
